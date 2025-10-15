@@ -1,4 +1,11 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+from utils import SensitiveStr
+
+load_dotenv()
+
+NCBI_API_KEY = SensitiveStr(os.getenv('NCBI_API_KEY'))
 
 SPECIES_OF_INTEREST = {
     "Mus musculus": 10090,
