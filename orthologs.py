@@ -8,6 +8,7 @@ from typing import Any
 
 from config import SPECIES_OF_INTEREST, PATH_TO_ORTHOLOGS, LOG_PATH, NCBI_API_KEY
 from logging_config import setup_logging
+from utils import download_rate_limiter
 
 setup_logging(LOG_PATH)  # TODO remove later
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ def resolve_query_type(gene: str | int) -> list[str]:
 
     if isinstance(gene, int):
         return ["gene-id", str(gene)]
-    elif bool(re.match(pattern, gene)):
+    elif isinstance(gene, str) and bool(re.match(pattern, gene)):
         return ["accession", gene]
     elif isinstance(gene, str):
         try:
@@ -59,6 +60,7 @@ def resolve_query_type(gene: str | int) -> list[str]:
         raise OrthologResolveQueryTypeError
 
 
+@download_rate_limiter("ncbi", 10)
 def get_orthologs_for_gene(
     gene: int | str,
     species_of_interest: list[int] = SPECIES_OF_INTEREST.values(),
