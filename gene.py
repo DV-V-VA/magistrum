@@ -1,13 +1,14 @@
 from dataclasses import dataclass, field
-from config import PATH_TO_HUGO_DB, LOG_PATH
+from config import PATH_TO_HUGO_DB, PATH_TO_LOGS
 from pathlib import Path
 import json
 import logging
 from logging_config import setup_logging
-from functools import lru_cache
+
+from orthologs_ncbi import Ortholog
 
 
-setup_logging(LOG_PATH)  # TODO remove later
+setup_logging(PATH_TO_LOGS)  # TODO remove later
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +42,8 @@ class Gene:
 
     mane_select: list[str] = field(default_factory=list)
     gene_ids: list[GeneID] = field(default_factory=list)
+
+    orthologs: list[Ortholog] = field(default_factory=list)
 
 
 def build_gene_index(genes: list[Gene]) -> dict[str, Gene]:

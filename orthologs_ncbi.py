@@ -6,11 +6,11 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from config import SPECIES_OF_INTEREST, PATH_TO_ORTHOLOGS, LOG_PATH, NCBI_API_KEY
+from config import SPECIES_OF_INTEREST, PATH_TO_ORTHOLOGS, PATH_TO_LOGS, NCBI_API_KEY
 from logging_config import setup_logging
 from utils import download_rate_limiter
 
-setup_logging(LOG_PATH)  # TODO remove later
+setup_logging(PATH_TO_LOGS)  # TODO remove later
 logger = logging.getLogger(__name__)
 
 
@@ -55,7 +55,7 @@ def resolve_query_type(gene: str | int) -> list[str]:
             gene = int(gene)
             return ["gene-id", str(gene)]
         except ValueError:
-            return ["symbol", gene]
+            return ["symbol", str(gene)]
     else:
         raise OrthologResolveQueryTypeError
 
@@ -63,7 +63,7 @@ def resolve_query_type(gene: str | int) -> list[str]:
 @download_rate_limiter("ncbi", 10)
 def get_orthologs_for_gene_ncbi(
     gene: int | str,
-    species_of_interest: list[int] = SPECIES_OF_INTEREST.values(),
+    species_of_interest: list[int] = list(SPECIES_OF_INTEREST.values()),
     save_output: bool = True,
     path_to_output: Path = PATH_TO_ORTHOLOGS,
     api_key: str | None = NCBI_API_KEY,
@@ -116,7 +116,7 @@ def get_orthologs_for_gene_ncbi(
     for ortholog in parsed_response:
         orthologs.append(
             Ortholog(
-                query_gene=gene,
+                query_gene=str(gene),
                 taxname=ortholog.get("taxname"),
                 common_name=ortholog.get("common_name"),
                 tax_id=ortholog.get("tax_id"),
