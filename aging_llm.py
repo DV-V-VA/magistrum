@@ -57,9 +57,9 @@ class AgingLLM:
             documents = SimpleDirectoryReader(input_dir=path_to_data).load_data()
             print(f"✅ Loaded {len(documents)} document chunks")
             
-            if documents:
-                print("Sample document ID:", documents[0].doc_id)
-                pprint.pprint(documents[0].dict(), indent=2, depth=2)
+            #if documents:
+                #print("Sample document ID:", documents[0].doc_id)
+                #pprint.pprint(documents[0].dict(), indent=2, depth=2)
 
 
             Settings.embed_model = NebiusEmbedding(
