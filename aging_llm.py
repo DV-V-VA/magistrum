@@ -1,7 +1,7 @@
 import os, re
 from dotenv import load_dotenv
-import pprint
-from llama_index.core import SimpleDirectoryReader, Settings, VectorStoreIndex, StorageContext
+import pprint, textwrap  #debug
+from llama_index.core import Settings, VectorStoreIndex, StorageContext
 from llama_index.embeddings.nebius import NebiusEmbedding
 from pymilvus import MilvusClient
 from llama_index.vector_stores.milvus import MilvusVectorStore
@@ -16,7 +16,8 @@ class AgingLLM:
         self.EMBEDDING_LENGTH = 4096
         self.DB_URI = './rag.db'
         self.COLLECTION_NAME = 'rag'
-        
+
+    #этот метод можно закоментить в итоговом варианте
     def _check_context_usage(self, index: VectorStoreIndex) -> None:
         """Test if model uses context by asking unrelated question"""
         query_engine = index.as_query_engine()
@@ -24,7 +25,7 @@ class AgingLLM:
         print("Context test:", test_response)
 
     # тут не забудь стереть хардкод АПОЕ
-    def _create_gene_prompt(self, gene_name:str='APOE') -> str:
+    def _create_gene_prompt(self, gene_name:str) -> str:
         """Create structured prompt for gene analysis"""
         return f"""
         You are a genomics expert analyzing documents for gene-aging relationships. Extract and summarize all information about the gene {gene_name} from the provided context. Focus primarily on its relation to aging, longevity, or age-related processes.
@@ -55,7 +56,6 @@ class AgingLLM:
 
         except Exception as error:
             print(f"Error in preprocessing files!{error}")
-        print(text.strip())
         return text.strip()
 
     def _load_xml_documents(self, path_to_data:str='./data/test_data')-> str:
@@ -138,7 +138,7 @@ class AgingLLM:
             print(f"❌ Error in text_rag: {error}")
             raise
 
-    def llm_response(self, test_context: bool = False, gene_name: str = 'APOE') -> str:
+    def llm_response(self, gene_name: str, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
         load_dotenv()
         try:
@@ -187,10 +187,24 @@ class AgingLLM:
 
 if __name__ == "__main__":
     aging_llm = AgingLLM()
-    #aging_llm._load_xml_documents()
+
+
+    # debug xml content
+    #with open("output.txt", 'w', encoding='utf-8') as f:
+    #    documents = aging_llm._load_xml_documents()
+    #    for i, doc in enumerate(documents):
+    #        f.write(f"=== Document {i+1}: {doc.doc_id} ===\n")
+#
+    #        # Wrap text to 80 characters per line for readability
+    #        wrapped_text = textwrap.fill(doc.text, width=80, break_long_words=False)
+    #        f.write(wrapped_text)
+    #        f.write("\n\n" + "="*80 + "\n\n")
+
     #proxychains curl https://ifconfig.me - check vpn
+
+
     # Create index from documents
     db_path = aging_llm.text_rag('./data/test_data')
     
     # Query with context testing
-    result = aging_llm.llm_response(test_context=True, gene_name='APOE')
+    result = aging_llm.llm_response(test_context=False, gene_name='APOE')
