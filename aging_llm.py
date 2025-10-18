@@ -1,4 +1,4 @@
-import os
+import os, re
 from dotenv import load_dotenv
 import pprint
 from llama_index.core import SimpleDirectoryReader, Settings, VectorStoreIndex, StorageContext
@@ -6,6 +6,8 @@ from llama_index.embeddings.nebius import NebiusEmbedding
 from pymilvus import MilvusClient
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.llms.nebius import NebiusLLM
+from llama_index.core.schema import Document
+from bs4 import BeautifulSoup
 
 
 class AgingLLM:
@@ -41,7 +43,39 @@ class AgingLLM:
 
         Base everything on the retrieved document context—do not hallucinate external knowledge. If no info on aging, state "No direct relation to aging found in context." Be concise, use bullet points for clarity, and cite context snippets (e.g., [Source: Document X, Page Y]).
         """
+    
 
+    def _preprocess_xml(self, xml_content:str) -> str:
+        try:
+            soup = BeautifulSoup(xml_content, 'xml')
+            text = soup.get_text(separator=' ', strip=True)
+            text = re.sub(r'\s+', ' ', text)
+            text = re.sub(r'\[\d+\]', '', text)
+            text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+
+        except Exception as error:
+            print(f"Error in preprocessing files!{error}")
+        print(text.strip())
+        return text.strip()
+
+    def _load_xml_documents(self, path_to_data:str='./data/test_data')-> str:
+        documents = []
+        for filename in os.listdir(path_to_data):
+            if filename.endswith('.xml'):
+                filepath = os.path.join(path_to_data, filename)
+                try:
+                    with open(filepath, 'r') as f:
+                        xml_content = f.read()
+
+                    clean_text = self._preprocess_xml(xml_content)
+                    if clean_text:
+                        documents.append(Document(text=clean_text, doc_id=filename))
+
+                except Exception as error:
+                    print(f"Error in loading xml files!{error}")
+
+        return documents
+        
     def text_rag(self, path_to_data: str = './data/test_data') -> str:
         """Process documents and create RAG index. VPN is required"""
         load_dotenv()
@@ -54,13 +88,16 @@ class AgingLLM:
             if not os.path.exists(path_to_data):
                 raise FileNotFoundError(f"Data directory not found: {path_to_data}")
                 
-            documents = SimpleDirectoryReader(input_dir=path_to_data).load_data()
+            #documents = SimpleDirectoryReader(input_dir=path_to_data).load_data()
+
+            xml_files = [f for f in os.listdir(path_to_data) if f.endswith('.xml')]
+            if xml_files:
+                documents = self._load_xml_documents(path_to_data)
             print(f"✅ Loaded {len(documents)} document chunks")
-            
+
             #if documents:
                 #print("Sample document ID:", documents[0].doc_id)
                 #pprint.pprint(documents[0].dict(), indent=2, depth=2)
-
 
             Settings.embed_model = NebiusEmbedding(
                 model_name=self.EMBEDDING_MODEL,
@@ -150,6 +187,7 @@ class AgingLLM:
 
 if __name__ == "__main__":
     aging_llm = AgingLLM()
+    #aging_llm._load_xml_documents()
     #proxychains curl https://ifconfig.me - check vpn
     # Create index from documents
     db_path = aging_llm.text_rag('./data/test_data')
