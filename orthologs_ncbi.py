@@ -61,7 +61,7 @@ def resolve_query_type(gene: str | int) -> list[str]:
 
 
 @download_rate_limiter("ncbi", 10)
-def get_orthologs_for_gene(
+def get_orthologs_for_gene_ncbi(
     gene: int | str,
     species_of_interest: list[int] = SPECIES_OF_INTEREST.values(),
     save_output: bool = True,
@@ -70,7 +70,7 @@ def get_orthologs_for_gene(
 ) -> NCBIDatasetsResponse:
     """Get gene orthologs via gene-id, accession or symbol via NCBI API"""
 
-    logger.info(f"Start search for: {gene}")
+    logger.info(f"Start NCBI search for: {gene}")
     logger.debug(f"Resolving query type for: {gene}")
 
     resolved_query = resolve_query_type(gene)
@@ -107,9 +107,10 @@ def get_orthologs_for_gene(
 
     if save_output:
         with open(Path(path_to_output, f"{gene}.json"), "w") as f:
+            logger.info(f"Results will be saved at {path_to_output}")
             f.write(json.dumps(parsed_response, indent=4))
 
-    logger.info(f"Finished for {gene}")
+    logger.info(f"Finished NCBI search for {gene}")
 
     orthologs = []
     for ortholog in parsed_response:
