@@ -1,7 +1,7 @@
 import logging
 import subprocess
 
-from config import PATH_TO_LOGS, PATH_TO_PARSED_TEXTS
+from config import PATH_TO_LOGS
 from gene import QueryInput
 from logging_config import setup_logging
 
@@ -9,9 +9,7 @@ setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
 
-def run_text_parser_all(
-    query_input: QueryInput, out_prefix: str = str(PATH_TO_PARSED_TEXTS)
-):
+def run_text_parser_all(query_input: QueryInput, out_prefix: str):
     """Run text parsing for gene"""
 
     logger.info(
