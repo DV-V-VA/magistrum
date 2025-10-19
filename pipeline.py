@@ -7,6 +7,7 @@ from gene import (
     parse_target_gene_with_orthologs,
 )
 from logging_config import setup_logging
+from text_parser_wrapper import run_text_parser_all
 
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
@@ -45,10 +46,11 @@ def run_pipeline(
                 save_output=save_output,
                 force_rerun=force_rerun,
             )
+    query_input = target_gene.get_synonym_list_for_gene()
+    logger.info(f"Extracted target gene synonyms are: {query_input}")
 
-    logger.info(
-        f"Extracted target gene synonyms are: {target_gene.get_synonym_list_for_gene()}"
-    )
+    logger.info(f"Started parsing texts for {query_input.protein_symbol}")
+    run_text_parser_all(query_input)
 
     logger.info(f"Finished pipeline for {gene_name}")
 
