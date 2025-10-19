@@ -31,6 +31,10 @@ PATH_TO_HUGO_DB = Path(Path(__file__).parent, "data/hugo_db/non_alt_loci_set.jso
 PATH_TO_PARSED_GENES = Path(Path(__file__).parent, "data/parsed_genes")
 PATH_TO_ORTHOLOGS = Path(Path(__file__).parent, "data/orthologs")
 PATH_TO_PARSED_TEXTS = Path(Path(__file__).parent, "data/full_texts_outputs")
+PATH_TO_GENAGE_PARSED_GENES = Path(Path(__file__).parent, "data/data_genage")
+PATH_TO_RAG = Path(Path(__file__).parent, "data/rags")
+PATH_TO_COMPLETE_GENES = Path(Path(__file__).parent, "data/complete_genes")
+
 PATH_TO_GENAGE_HUMAN_GENES = Path(
     Path(__file__).parent, "data/genage_genes/genage_human.csv"
 )

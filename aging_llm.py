@@ -3,7 +3,6 @@ import logging
 import os
 import re
 import shutil
-import tempfile
 from concurrent.futures import ProcessPoolExecutor
 
 from bs4 import BeautifulSoup
@@ -16,10 +15,15 @@ from llama_index.llms.nebius import NebiusLLM
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from pymilvus import MilvusClient
 
-from config import PATH_TO_FULL_TEXTS_LLM, PATH_TO_GENAGE_PARSED_GENES
+from config import (
+    PATH_TO_GENAGE_PARSED_GENES,
+    PATH_TO_LOGS,
+    PATH_TO_PARSED_TEXTS,
+    PATH_TO_RAG,
+)
 from logging_config import setup_logging
 
-PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
+# PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
@@ -29,7 +33,7 @@ class AgingLLM:
         self.gene_name = gene_name
         self.EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-8B"
         self.EMBEDDING_LENGTH = 4096
-        self.DB_URI = f"./{gene_name}/rag.db"
+        self.DB_URI = f"{PATH_TO_RAG}/{gene_name}/rag.db"
         self.COLLECTION_NAME = f"{gene_name}_rag"
         self._cached_index = None
 
@@ -86,7 +90,7 @@ class AgingLLM:
             text = text.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
 
         except Exception as error:
-            logger(f"Error in preprocessing files!{error}")
+            logger.error(f"Error in preprocessing files!{error}")
         return text.strip()
 
     def text_rag(self, path_to_data: str) -> str:
@@ -264,7 +268,7 @@ class AgingLLM:
 def run_llm(gene_name):
     aging_llm = AgingLLM(gene_name)
     db_path = aging_llm.text_rag(
-        path_to_data=f"{PATH_TO_FULL_TEXTS_LLM}/{gene_name}/triage/fulltext_xml/"
+        path_to_data=f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml/"
     )
     # db_path = aging_llm.text_rag("./data/test_data")
     if db_path:

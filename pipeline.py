@@ -1,7 +1,15 @@
+import json
 import logging
+from dataclasses import asdict
 from pathlib import Path
 
-from config import PATH_TO_LOGS, PATH_TO_PARSED_GENES, PATH_TO_PARSED_TEXTS
+from aging_llm import run_llm
+from config import (
+    PATH_TO_COMPLETE_GENES,
+    PATH_TO_LOGS,
+    PATH_TO_PARSED_GENES,
+    PATH_TO_PARSED_TEXTS,
+)
 from gene import (
     get_target_gene_with_orthologs_from_file,
     parse_target_gene_with_orthologs,
@@ -26,6 +34,7 @@ def run_pipeline(
     # Declare paths
     gene_file = Path(path_to_output, f"{gene_name}.json")
     parsed_full_text_folder_path = Path(PATH_TO_PARSED_TEXTS, gene_name)
+    complete_gene_file = Path(PATH_TO_COMPLETE_GENES, f"{gene_name}.json")
 
     # Create Gene obj
     if force_rerun or not gene_file.exists():
@@ -60,6 +69,16 @@ def run_pipeline(
         run_text_parser_all(query_input, str(parsed_full_text_folder_path))
     else:
         logger.info(f"Will reuse full texts at {parsed_full_text_folder_path}")
+
+    # Run LLM
+    target_gene.llm_summary = run_llm(target_gene.symbol)
+
+    if save_output:
+        with open(complete_gene_file, "w") as f:
+            logger.info(
+                f"Results for complete file will be saved at {complete_gene_file}"
+            )
+            f.write(json.dumps(asdict(target_gene), indent=4))
 
     logger.info(f"Finished pipeline for {gene_name}")
 
