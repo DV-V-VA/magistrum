@@ -1,34 +1,33 @@
-import time
-from functools import wraps
-from collections import deque
 import logging
-
+import time
+from collections import deque
+from functools import wraps
 
 logger = logging.getLogger(__name__)
+
 
 class SensitiveStr(str):
     def __new__(cls, value):
         return super().__new__(cls, value)
-    
+
     def __repr__(self):
         return "<SensitiveStr: ****>"
-    
+
     def __str__(self):
         return "****"
-    
+
     def reveal(self):
         return super().__str__()
-    
-
 
 
 GLOBAL_DOWNLOAD_TIMES = {}
+
 
 def download_rate_limiter(resource_name, suggested_rps):
     """
     RPS limiter
     """
-    
+
     if resource_name not in GLOBAL_DOWNLOAD_TIMES:
         GLOBAL_DOWNLOAD_TIMES[resource_name] = deque()
 
@@ -54,4 +53,5 @@ def download_rate_limiter(resource_name, suggested_rps):
             return func(*args, **kwargs)
 
         return wrapper
+
     return decorator

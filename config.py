@@ -1,11 +1,15 @@
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
 from utils import SensitiveStr
 
 load_dotenv()
 
-NCBI_API_KEY = SensitiveStr(os.getenv('NCBI_API_KEY'))
+NCBI_API_KEY = SensitiveStr(os.getenv("NCBI_API_KEY"))
+UNIPROT_SEARCH = "https://rest.uniprot.org/uniprotkb/search"
+ENSEMBL_SEARCH = "https://rest.ensembl.org/lookup/symbol/homo_sapiens/{}?expand=1"
 
 SPECIES_OF_INTEREST = {
     "Mus musculus": 10090,
@@ -14,6 +18,17 @@ SPECIES_OF_INTEREST = {
     "Drosophila melanogaster": 7227,
     "Danio rerio": 7955,
 }
-PATH_TO_ORTHOLOGS = Path("/home/sasha/longevity_project_dev/data/orthologs")
 
-LOG_PATH = Path("/home/sasha/longevity_project_dev/data/logs/pipeline.log")
+PATH_TO_PARSED_GENES = Path(Path(__file__).parent, "data/parsed_genes")
+PATH_TO_ORTHOLOGS = Path(Path(__file__).parent, "data/orthologs")
+PATH_TO_HUGO_DB = Path(Path(__file__).parent, "data/hugo_db/non_alt_loci_set.json")
+PATH_TO_GENAGE_HUMAN_GENES = Path(
+    Path(__file__).parent, "data/genage_genes/genage_human.csv"
+)
+PATH_TO_GENAGE_MODEL_GENES = Path(
+    Path(__file__).parent, "data/genage_genes/genage_model.csv"
+)
+PATH_TO_TEST_DATA_LLM = Path(Path(__file__).parent, "data/test_data")
+
+
+PATH_TO_LOGS = Path(Path(__file__).parent, "data/logs/pipeline.log")
