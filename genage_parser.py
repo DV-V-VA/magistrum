@@ -11,6 +11,8 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from config import PATH_TO_GENAGE_MODEL_GENES
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -354,11 +356,10 @@ def get_gene_names(csv_file_path: str, file_type: str) -> list:
 
 
 if __name__ == "__main__":
-    # csv_file = "./genage_genes/genage_human.csv"
-    # gene_list = get_gene_names(csv_file, file_type='human')
+    # for human genes uncomment
+    # gene_list = get_gene_names(PATH_TO_GENAGE_HUMAN_GENES, file_type='human')
 
-    csv_file = "./genage_genes/genage_models.csv"
-    gene_list, org_list = get_gene_names(csv_file, file_type="model")
+    gene_list, org_list = get_gene_names(PATH_TO_GENAGE_MODEL_GENES, file_type="model")
 
     # gene_name = 'aak-2'
     # organism = 'elegans'

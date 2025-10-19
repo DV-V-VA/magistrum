@@ -10,6 +10,8 @@ from llama_index.llms.nebius import NebiusLLM
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from pymilvus import MilvusClient
 
+from config import PATH_TO_TEST_DATA_LLM
+
 
 class AgingLLM:
     def __init__(self):
@@ -75,7 +77,7 @@ class AgingLLM:
             print(f"Error in preprocessing files!{error}")
         return text.strip()
 
-    def _load_xml_documents(self, path_to_data: str = "./data/test_data") -> str:
+    def _load_xml_documents(self, path_to_data: str = PATH_TO_TEST_DATA_LLM) -> str:
         documents = []
         for filename in os.listdir(path_to_data):
             if filename.endswith(".xml"):
@@ -93,7 +95,7 @@ class AgingLLM:
 
         return documents
 
-    def text_rag(self, path_to_data: str = "./data/test_data") -> str:
+    def text_rag(self, path_to_data: str = PATH_TO_TEST_DATA_LLM) -> str:
         """Process documents and create RAG index. VPN is required"""
         load_dotenv()
         try:
@@ -210,7 +212,7 @@ if __name__ == "__main__":
     # proxychains curl https://ifconfig.me - check vpn
 
     # Create index from documents
-    db_path = aging_llm.text_rag("./data/test_data")
+    db_path = aging_llm.text_rag(PATH_TO_TEST_DATA_LLM)
 
     # Query with context testing
     result = aging_llm.llm_response(test_context=False, gene_name="APOE")

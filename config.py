@@ -22,5 +22,13 @@ SPECIES_OF_INTEREST = {
 PATH_TO_PARSED_GENES = Path(Path(__file__).parent, "data/parsed_genes")
 PATH_TO_ORTHOLOGS = Path(Path(__file__).parent, "data/orthologs")
 PATH_TO_HUGO_DB = Path(Path(__file__).parent, "data/hugo_db/non_alt_loci_set.json")
+PATH_TO_GENAGE_HUMAN_GENES = Path(
+    Path(__file__).parent, "data/genage_genes/genage_human.csv"
+)
+PATH_TO_GENAGE_MODEL_GENES = Path(
+    Path(__file__).parent, "data/genage_genes/genage_model.csv"
+)
+PATH_TO_TEST_DATA_LLM = Path(Path(__file__).parent, "data/test_data")
+
 
 PATH_TO_LOGS = Path(Path(__file__).parent, "data/logs/pipeline.log")
