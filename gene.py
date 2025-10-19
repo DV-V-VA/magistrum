@@ -19,6 +19,12 @@ class GeneID:
 
 
 @dataclass
+class QueryInput:
+    protein_symbol: str
+    synonyms: list[str]
+
+
+@dataclass
 class Gene:
     symbol: str
     locus_group: str
@@ -28,6 +34,8 @@ class Gene:
     n_papers: int = field(default_factory=int)
 
     refseq_summary: str = field(default="No summary found")
+    llm_summaru: str = field(default="No LLM summary yet")
+
     uniprot_full_names: list[str] = field(default_factory=list)
     all_aliases: list[str] = field(default_factory=list)
 
@@ -48,16 +56,15 @@ class Gene:
 
     prev_modified: list[str] = field(default_factory=list)
 
-    def get_synonym_list_for_gene(self) -> list[str]:
+    def get_synonym_list_for_gene(self) -> QueryInput:
         """Extract only gene symbol and its synonyms from Gene"""
         synonyms_list = []
-        synonyms_list.append(self.symbol)
         for ortholog in self.orthologs:
             synonyms_list.append(ortholog.symbol)
             for synonym in ortholog.synonyms:
                 synonyms_list.append(synonym)
 
-        return list(set(synonyms_list))
+        return QueryInput(protein_symbol=self.symbol, synonyms=list(set(synonyms_list)))
 
 
 def build_gene_index(genes: list[Gene]) -> dict[str, Gene]:
