@@ -23,8 +23,11 @@ def run_pipeline(
 
     logger.info("Starting pipeline")
 
+    # Declare paths
     gene_file = Path(path_to_output, f"{gene_name}.json")
+    parsed_full_text_folder_path = Path(PATH_TO_PARSED_TEXTS, gene_name)
 
+    # Create Gene obj
     if force_rerun or not gene_file.exists():
         target_gene = parse_target_gene_with_orthologs(
             gene_name=gene_name,
@@ -46,13 +49,17 @@ def run_pipeline(
                 save_output=save_output,
                 force_rerun=force_rerun,
             )
+
+    # Create query
     query_input = target_gene.get_synonym_list_for_gene()
     logger.info(f"Extracted target gene synonyms are: {query_input}")
 
-    logger.info(f"Started parsing texts for {query_input.protein_symbol}")
-    run_text_parser_all(
-        query_input, str(Path(PATH_TO_PARSED_TEXTS, target_gene.symbol))
-    )
+    # Extract full texts
+    if force_rerun or not parsed_full_text_folder_path.exists():
+        logger.info(f"Started parsing texts for {gene_name}")
+        run_text_parser_all(query_input, str(parsed_full_text_folder_path))
+    else:
+        logger.info(f"Will reuse full texts at {parsed_full_text_folder_path}")
 
     logger.info(f"Finished pipeline for {gene_name}")
 
