@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from config import PATH_TO_LOGS, PATH_TO_PARSED_GENES
+from config import PATH_TO_LOGS, PATH_TO_PARSED_GENES, PATH_TO_PARSED_TEXTS
 from gene import (
     get_target_gene_with_orthologs_from_file,
     parse_target_gene_with_orthologs,
@@ -50,7 +50,9 @@ def run_pipeline(
     logger.info(f"Extracted target gene synonyms are: {query_input}")
 
     logger.info(f"Started parsing texts for {query_input.protein_symbol}")
-    run_text_parser_all(query_input)
+    run_text_parser_all(
+        query_input, str(Path(PATH_TO_PARSED_TEXTS, target_gene.symbol))
+    )
 
     logger.info(f"Finished pipeline for {gene_name}")
 

@@ -1,23 +1,21 @@
+import logging
 import subprocess
 
-# import logging
-# from config import PATH_TO_LOGS
-# from logging_config import setup_logging
-from config import PATH_TO_PARSED_TEXTS
+from config import PATH_TO_LOGS
 from gene import QueryInput
+from logging_config import setup_logging
 
-# setup_logging(PATH_TO_LOGS)
-# logger = logging.getLogger(__name__)
+setup_logging(PATH_TO_LOGS)
+logger = logging.getLogger(__name__)
 
 
-def run_text_parser_all(
-    query_input: QueryInput, out_prefix: str = str(PATH_TO_PARSED_TEXTS)
-):
+def run_text_parser_all(query_input: QueryInput, out_prefix: str):
     """Run text parsing for gene"""
 
-    # logger.info(
-    #     f"Parsing texts for {protein} and its synonyms {syns}",
-    # )
+    logger.info(
+        f"Parsing texts for {query_input.protein_symbol} and its "
+        + "synonyms {query_input.synonyms}",
+    )
 
     cmd = [
         "python",
@@ -32,18 +30,16 @@ def run_text_parser_all(
         out_prefix,
     ]
 
-    # logger.debug("Running command:", " ".join(cmd))
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    logger.info(f"Running command: {' '.join(cmd)}")
+    result = subprocess.run(cmd)
 
     if result.returncode == 0:
-        # logger.info(
-        #     f"Finished text parsing for {protein} and its synonyms {syns}. "
-        #     + "Results will be at {out_prefix}",
-        # )
+        logger.info(
+            f"Finished text parsing for {query_input.protein_symbol} "
+            + "and its synonyms {query_input.synonyms}. "
+            + "Results will be at {out_prefix}",
+        )
         print("ok")
     else:
-        # logger.error(
-        #     f"Failed to parse text for {protein} and its synonyms {syns}",
-        # )
-        # logger.error(result.stderr)
+        logger.error(result.stderr)
         pass

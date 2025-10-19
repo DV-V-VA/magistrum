@@ -34,7 +34,7 @@ class Gene:
     n_papers: int = field(default_factory=int)
 
     refseq_summary: str = field(default="No summary found")
-    llm_summaru: str = field(default="No LLM summary yet")
+    llm_summary: str = field(default="No LLM summary yet")
 
     uniprot_full_names: list[str] = field(default_factory=list)
     all_aliases: list[str] = field(default_factory=list)
