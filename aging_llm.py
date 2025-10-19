@@ -29,29 +29,38 @@ class AgingLLM:
         """Create structured prompt for gene analysis"""
         return f"""
         You are a genomics expert analyzing documents for gene-aging relationships.
-        Extract and summarize all information about the gene {gene_name} from the provided context.
+        Extract and summarize all information about the gene {gene_name} from the
+        provided context.
         Focus primarily on its relation to aging, longevity, or age-related processes.
 
         Structure your response exactly as follows:
-        1. **Gene Overview**: Full name, function, location (chromosome), protein product, and key pathways involved.
-        2. **Variants/Alleles**: Common isoforms (e.g., SNPs like rsID) and their prevalence in populations.
+        1. **Gene Overview**: Full name, function, location (chromosome),
+        protein product, and key pathways involved.
+        2. **Variants/Alleles**: Common isoforms (e.g., SNPs like rsID)
+        and their prevalence in populations.
         3. **Relation to Aging/Longevity**:
-           - Mechanisms: How it influences aging (e.g., via oxidative stress, inflammation, DNA repair, cellular
-           senescence, or epigenetic changes).
-           - Positive Effects: Evidence of promotion of longevity (e.g., in centenarians, model organisms
-           like C. elegans or mice).
-           - Negative Effects: Links to accelerated aging, age-related diseases (e.g., Alzheimer's,
-           cardiovascular disease, cancer), or reduced lifespan.
-           - Key Studies: Summarize findings from human GWAS, cohort studies (e.g., Framingham Heart Study),
-           or animal models. Include effect sizes (e.g., odds ratios, hazard ratios) if mentioned.
-           - Biomarkers/Expression: Changes in expression levels with age, or as a biomarker for biological age.
-        4. **Interactions**: With other genes (e.g., FOXO3, SIRT1), environment (diet, exercise), or interventions
+           - Mechanisms: How it influences aging (e.g., via oxidative stress,
+           inflammation, DNA repair, cellular senescence, or epigenetic changes).
+           - Positive Effects: Evidence of promotion of longevity (e.g.,
+           in centenarians, model organisms like C. elegans or mice).
+           - Negative Effects: Links to accelerated aging, age-related diseases
+           (e.g., Alzheimer's, cardiovascular disease, cancer), or reduced lifespan.
+           - Key Studies: Summarize findings from human GWAS, cohort studies
+           (e.g., Framingham Heart Study), or animal models. Include effect sizes
+           (e.g., odds ratios, hazard ratios) if mentioned.
+           - Biomarkers/Expression: Changes in expression levels with age,
+           or as a biomarker for biological age.
+        4. **Interactions**: With other genes (e.g., FOXO3, SIRT1),
+        environment (diet, exercise), or interventions
         (e.g.,rapamycin, metformin effects on this gene).
-        5. **Gaps/Uncertainty**: If data is limited or conflicting, note it. Suggest related genes for further query.
+        5. **Gaps/Uncertainty**: If data is limited or conflicting, note it.
+        Suggest related genes for further query.
 
-        Base everything on the retrieved document context—do not hallucinate external knowledge. If no info on aging,
-        state "No direct relation to aging found in context." Be concise, use bullet points for clarity, and cite
-        context snippets (e.g., [Source: Document X, Page Y]).
+        Base everything on the retrieved document context—
+        do not hallucinate external knowledge.
+        If no info on aging,state "No direct relation to aging found in context."
+        Be concise, use bullet points for clarity, and cite context snippets
+        (e.g., [Source: Document X, Page Y]).
         """
 
     def _preprocess_xml(self, xml_content: str) -> str:
@@ -129,7 +138,9 @@ class AgingLLM:
             print("✅ Connected Llama-index to Milvus instance")
 
             print("⚙️ Creating index from documents...")
-            index = VectorStoreIndex.from_documents(documents, storage_context=storage_context, show_progress=True)
+            index = VectorStoreIndex.from_documents(
+                documents, storage_context=storage_context, show_progress=True
+            )
 
             print("✅ Created index:", index)
             print("✅ Saved index to db:", self.DB_URI)
@@ -156,7 +167,9 @@ class AgingLLM:
             index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
             print("✅ Loaded index from vector db:", self.DB_URI)
 
-            Settings.llm = NebiusLLM(model="openai/gpt-oss-120b", api_key=os.getenv("NEBIUS_API_KEY"))
+            Settings.llm = NebiusLLM(
+                model="openai/gpt-oss-120b", api_key=os.getenv("NEBIUS_API_KEY")
+            )
 
             # context testing if needed
             if test_context:
