@@ -48,6 +48,17 @@ class Gene:
 
     prev_modified: list[str] = field(default_factory=list)
 
+    def get_synonym_list_for_gene(self) -> list[str]:
+        """Extract only gene symbol and its synonyms from Gene"""
+        synonyms_list = []
+        synonyms_list.append(self.symbol)
+        for ortholog in self.orthologs:
+            synonyms_list.append(ortholog.symbol)
+            for synonym in ortholog.synonyms:
+                synonyms_list.append(synonym)
+
+        return list(set(synonyms_list))
+
 
 def build_gene_index(genes: list[Gene]) -> dict[str, Gene]:
     """Create gene index from list"""
@@ -111,7 +122,10 @@ def parse_target_gene_with_orthologs(
             prev_modified.extend(prev_target_gene.prev_modified)
             prev_modified.append(prev_target_gene.last_modified)
         except Exception:
-            logger.error(f"Error reading modification history from {gene_file}, will skip and rewrite")
+            logger.error(
+                f"Error reading modification history from {gene_file}"
+                + ", will skip and rewrite"
+            )
     all_genes_index = build_gene_index(read_hugo_db())
 
     target_gene = all_genes_index[gene_name]
@@ -128,12 +142,22 @@ def parse_target_gene_with_orthologs(
     return target_gene
 
 
-def get_target_gene_with_orthologs_from_file(gene_file: Path):
+def get_target_gene_with_orthologs_from_file(gene_file: Path) -> Gene:
+    """Read Gene object from json file"""
+
     with open(gene_file) as f:
         target_gene = Gene(**json.load(f))
 
-    target_gene.gene_ids = [GeneID(**gene_id) for gene_id in target_gene.gene_ids if isinstance(gene_id, dict)]
+    target_gene.gene_ids = [
+        GeneID(**gene_id)
+        for gene_id in target_gene.gene_ids
+        if isinstance(gene_id, dict)
+    ]
 
-    target_gene.orthologs = [Ortholog(**ortholog) for ortholog in target_gene.orthologs if isinstance(ortholog, dict)]
+    target_gene.orthologs = [
+        Ortholog(**ortholog)
+        for ortholog in target_gene.orthologs
+        if isinstance(ortholog, dict)
+    ]
 
     return target_gene

@@ -8,7 +8,7 @@ from gene import (
 )
 from logging_config import setup_logging
 
-setup_logging(PATH_TO_LOGS)  # TODO remove later
+setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
 
@@ -46,7 +46,9 @@ def run_pipeline(
                 force_rerun=force_rerun,
             )
 
-    logger.info(f"Extracted target gene is: {target_gene}")
+    logger.info(
+        f"Extracted target gene synonyms are: {target_gene.get_synonym_list_for_gene()}"
+    )
 
     logger.info(f"Finished pipeline for {gene_name}")
 
