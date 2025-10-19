@@ -5,6 +5,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from typing import Any
+from datetime import datetime
 
 from config import SPECIES_OF_INTEREST, PATH_TO_ORTHOLOGS, PATH_TO_LOGS, NCBI_API_KEY
 from logging_config import setup_logging
@@ -32,13 +33,15 @@ class Ortholog:
     synonyms: list[str]
     description: str
     summary: list[Any]
+    last_modified: str = str(datetime.now())
+    prev_modified: list[str] = field(default_factory=list)
 
 
 @dataclass
 class NCBIDatasetsResponse:
     orthologs: list[Ortholog]
     parsed_response: list = field(repr=False)
-    raw_response: str = field(repr=False)
+    # raw_response: str = field(repr=False, default="")
 
 
 def resolve_query_type(gene: str | int) -> list[str]:
@@ -65,52 +68,67 @@ def get_orthologs_for_gene_ncbi(
     gene: int | str,
     species_of_interest: list[int] = list(SPECIES_OF_INTEREST.values()),
     save_output: bool = True,
+    force_rerun: bool = False,
     path_to_output: Path = PATH_TO_ORTHOLOGS,
     api_key: str | None = NCBI_API_KEY,
 ) -> NCBIDatasetsResponse:
     """Get gene orthologs via gene-id, accession or symbol via NCBI API"""
 
     logger.info(f"Start NCBI search for: {gene}")
-    logger.debug(f"Resolving query type for: {gene}")
 
-    resolved_query = resolve_query_type(gene)
-    resolved_api_key = ["--api-key", api_key] if api_key is not None else []
-    logger.debug(f"Resolved as: {resolved_query[0]}")
-    cmd = [
-        "datasets",
-        "summary",
-        "gene",
-        *resolved_query,
-        *[arg for s in species_of_interest for arg in ("--ortholog", str(s))],
-        "--as-json-lines",
-        *resolved_api_key,
-    ]
+    gene_othologs_file = Path(path_to_output, f"{gene}.json")
+    gene_othologs_file_raw = Path(path_to_output, f"{gene}_raw.json")
 
-    logger.debug(f"CMD: {cmd}")
+    if force_rerun or not gene_othologs_file.exists():
+        logger.debug(f"Resolving query type for: {gene}")
 
-    proc = subprocess.run(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
+        resolved_query = resolve_query_type(gene)
+        resolved_api_key = ["--api-key", api_key] if api_key is not None else []
+        logger.debug(f"Resolved as: {resolved_query[0]}")
+        cmd = [
+            "datasets",
+            "summary",
+            "gene",
+            *resolved_query,
+            *[arg for s in species_of_interest for arg in ("--ortholog", str(s))],
+            "--as-json-lines",
+            *resolved_api_key,
+        ]
 
-    if proc.returncode != 0:
-        logger.error("Error running command:", proc.stderr)
-        raise OrthologRetrieveError
+        logger.debug(f"CMD: {cmd}")
 
-    raw_response = proc.stdout
-    parsed_response = []
-    for line in raw_response.splitlines():
-        if line.strip():
-            parsed_response.append(json.loads(line))
+        proc = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
 
-    if not parsed_response:
-        logger.warning(f"No data found for {gene}")
+        if proc.returncode != 0:
+            logger.error("Error running command:", proc.stderr)
+            raise OrthologRetrieveError
 
-    if save_output:
-        with open(Path(path_to_output, f"{gene}.json"), "w") as f:
-            logger.info(f"Results will be saved at {path_to_output}")
-            f.write(json.dumps(parsed_response, indent=4))
+        raw_response = proc.stdout
+        parsed_response = []
+        for line in raw_response.splitlines():
+            if line.strip():
+                parsed_response.append(json.loads(line))
 
-    logger.info(f"Finished NCBI search for {gene}")
+        if not parsed_response:
+            logger.warning(f"No data found for {gene}")
+
+        if save_output:
+            with open(gene_othologs_file, "w") as f:
+                logger.info(f"Results will be saved at {gene_othologs_file}")
+                f.write(json.dumps(parsed_response, indent=4))
+            with open(gene_othologs_file_raw, "w") as f:
+                logger.debug(f"Raw results will be saved at {gene_othologs_file_raw}")
+                f.write(json.dumps(parsed_response, indent=4))
+
+        logger.info(f"Finished NCBI search for {gene}")
+
+    else:
+        logger.info(f"Trying to read from {gene_othologs_file}")
+
+        with open(gene_othologs_file) as f:
+            parsed_response = json.load(f)
 
     orthologs = []
     for ortholog in parsed_response:
@@ -128,5 +146,6 @@ def get_orthologs_for_gene_ncbi(
         )
 
     return NCBIDatasetsResponse(
-        orthologs=orthologs, parsed_response=parsed_response, raw_response=raw_response
+        orthologs=orthologs,
+        parsed_response=parsed_response,  # raw_response=raw_response if raw_response
     )
