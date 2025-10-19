@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import time
@@ -11,9 +12,13 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from config import PATH_TO_GENAGE_MODEL_GENES
+from config import PATH_TO_GENAGE_MODEL_GENES, PATH_TO_LOGS
+from logging_config import setup_logging
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+setup_logging(PATH_TO_LOGS)  # TODO remove later
+logger = logging.getLogger(__name__)
 
 
 class GenAgeParser:
@@ -42,7 +47,6 @@ class GenAgeParser:
 
             else:
                 url = f"https://genomics.senescence.info/genes/details.php?gene={hgnc_gene_name}&organism={model_organism}"
-                print(url)
 
             time.sleep(2)
             response = self.session.get(url, headers=self.headers, verify=False)
@@ -51,7 +55,7 @@ class GenAgeParser:
             return self._parse_gene_html(response.content, hgnc_gene_name)
 
         except Exception as error:
-            print(f"Error processing {hgnc_gene_name}: {error}")
+            logger.info(f"Error processing {hgnc_gene_name}: {error}")
             return None
 
     def save_gene_info_to_xml(
@@ -91,7 +95,6 @@ class GenAgeParser:
 
             ET.ElementTree(root)
 
-            # Pretty print the XML
             rough_string = ET.tostring(root, encoding="utf-8")
             reparsed = minidom.parseString(rough_string)
             pretty_xml = reparsed.toprettyxml(indent="  ")
@@ -106,11 +109,11 @@ class GenAgeParser:
                 ]:  # Skip the first line (default declaration)
                     f.write(line + "\n")
 
-            print(f"Successfully saved gene info to {filename}")
+            logger.info(f"Successfully saved gene info to {filename}")
             return True
 
         except Exception as error:
-            print(f"Error saving XML for {hgnc_gene_name}: {error}")
+            logger.info()(f"Error saving XML for {hgnc_gene_name}: {error}")
             return False
 
     def _clean_citation_text(self, text: str) -> str:
@@ -147,7 +150,7 @@ class GenAgeParser:
             return f"Source: {citation_url}"
 
         except Exception as e:
-            print(f"Error extracting citation: {e}")
+            logger.info(f"Error extracting citation: {e}")
             return f"Source: {citation_url}"
 
     def _fetch_citation_source(self, citation_url: str, max_retries: int = 2) -> str:
@@ -160,7 +163,7 @@ class GenAgeParser:
                 )
 
                 if response.status_code != 200:
-                    print(f"HTTP {response.status_code} for {citation_url}")
+                    logger.info(f"HTTP {response.status_code} for {citation_url}")
                     return f"HTTP {response.status_code}"
 
                 soup = BeautifulSoup(response.content, "html.parser")
@@ -168,7 +171,7 @@ class GenAgeParser:
                 return source_info
 
             except Exception as e:
-                print(f"Attempt {attempt + 1} failed for {citation_url}: {e}")
+                logger.info(f"Attempt {attempt + 1} failed for {citation_url}: {e}")
                 if attempt == max_retries - 1:
                     return f"Failed to fetch: {citation_url}"
                 time.sleep(2)
@@ -187,22 +190,22 @@ class GenAgeParser:
                     string="Potential relevance to the human ageing process",
                 )
                 if not title_div:
-                    print(f"Aging relevance section not found for {gene_name}!")
+                    logger.info(f"Aging relevance section not found for {gene_name}!")
                     return None
 
                 section_entry = title_div.find_next("dl", class_="section-entry")
                 if not section_entry:
-                    print(f"Section entry not found for {gene_name}!")
+                    logger.info(f"Section entry not found for {gene_name}!")
                     return None
 
                 description_dt = section_entry.find("dt", string="Description")
                 if not description_dt:
-                    print(f"Description section not found for {gene_name}!")
+                    logger.info(f"Description section not found for {gene_name}!")
                     return None
 
                 description_dd = description_dt.find_next_sibling("dd")
                 if not description_dd:
-                    print(f"Description content not found for {gene_name}!")
+                    logger.info(f"Description content not found for {gene_name}!")
                     return None
 
                 description_copy = BeautifulSoup(str(description_dd), "html.parser")
@@ -253,11 +256,11 @@ class GenAgeParser:
                     string="Potential relevance to longevity and/or ageing",
                 )
                 if not title_div:
-                    print(f"Aging relevance section not found for {gene_name}!")
+                    logger.info(f"Aging relevance section not found for {gene_name}!")
                     return None
                 section_entries = title_div.find_all_next("dl", class_="section-entry")
                 if not section_entries:
-                    print(f"Section entries not found for {gene_name}!")
+                    logger.info(f"Section entries not found for {gene_name}!")
                     return None
 
                 all_observations = []
@@ -277,7 +280,7 @@ class GenAgeParser:
                             all_observations.append(observations_text)
 
                 if not all_observations:
-                    print(f"No observations found for {gene_name}!")
+                    logger.info(f"No observations found for {gene_name}!")
                     return None
 
                 combined_description = " ".join(all_observations)
@@ -301,7 +304,7 @@ class GenAgeParser:
                 }
 
         except Exception as error:
-            print(f"Error parsing HTML for {gene_name}: {error}")
+            logger.info(f"Error parsing HTML for {gene_name}: {error}")
             return None
 
     def _preprocess_xml(self, xml_content: str) -> str:
@@ -329,7 +332,7 @@ class GenAgeParser:
             return text.strip()
 
         except Exception as error:
-            print(f"Error in preprocessing files! {error}")
+            logger.info()(f"Error in preprocessing files! {error}")
             return xml_content
 
 
@@ -373,5 +376,5 @@ if __name__ == "__main__":
     #        xml_content = f.read()
     #
     #    processed_text = parser._preprocess_xml(xml_content)
-    #    print("Processed text:")
-    #    print(processed_text)
+    #    logger.info()("Processed text:")
+    #    logger.info()(processed_text)
