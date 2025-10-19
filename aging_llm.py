@@ -22,6 +22,7 @@ from config import (
     PATH_TO_RAG,
 )
 from logging_config import setup_logging
+from utils import download_rate_limiter
 
 # PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
 setup_logging(PATH_TO_LOGS)
@@ -218,6 +219,7 @@ class AgingLLM:
 
         return index
 
+    @download_rate_limiter("nebius", 10)
     def llm_response(self, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
         load_dotenv()
