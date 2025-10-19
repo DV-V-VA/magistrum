@@ -1,12 +1,12 @@
 import logging
-from logging_config import setup_logging
-from config import PATH_TO_LOGS, PATH_TO_PARSED_GENES
 from pathlib import Path
-from gene import (
-    parse_target_gene_with_orthologs,
-    get_target_gene_with_orthologs_from_file,
-)
 
+from config import PATH_TO_LOGS, PATH_TO_PARSED_GENES
+from gene import (
+    get_target_gene_with_orthologs_from_file,
+    parse_target_gene_with_orthologs,
+)
+from logging_config import setup_logging
 
 setup_logging(PATH_TO_LOGS)  # TODO remove later
 logger = logging.getLogger(__name__)

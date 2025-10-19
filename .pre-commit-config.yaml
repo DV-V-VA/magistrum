@@ -5,8 +5,7 @@ repos:
       - id: ruff
         args:
           [
-            "check",
-            # "--select", "E,F,W,I",
-            "--fix",
+            "--select", "E,F,W,I",
+            "--fix"
           ]
       - id: ruff-format

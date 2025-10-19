@@ -1,12 +1,12 @@
-from dataclasses import dataclass, field, asdict
-from config import PATH_TO_HUGO_DB, PATH_TO_LOGS
-from pathlib import Path
 import json
 import logging
-from logging_config import setup_logging
-
-from orthologs_ncbi import Ortholog, get_orthologs_for_gene_ncbi
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from pathlib import Path
+
+from config import PATH_TO_HUGO_DB, PATH_TO_LOGS
+from logging_config import setup_logging
+from orthologs_ncbi import Ortholog, get_orthologs_for_gene_ncbi
 
 setup_logging(PATH_TO_LOGS)  # TODO remove later
 logger = logging.getLogger(__name__)
@@ -111,9 +111,7 @@ def parse_target_gene_with_orthologs(
             prev_modified.extend(prev_target_gene.prev_modified)
             prev_modified.append(prev_target_gene.last_modified)
         except Exception:
-            logger.error(
-                f"Error reading modification history from {gene_file}, will skip and rewrite"
-            )
+            logger.error(f"Error reading modification history from {gene_file}, will skip and rewrite")
     all_genes_index = build_gene_index(read_hugo_db())
 
     target_gene = all_genes_index[gene_name]
@@ -134,16 +132,8 @@ def get_target_gene_with_orthologs_from_file(gene_file: Path):
     with open(gene_file) as f:
         target_gene = Gene(**json.load(f))
 
-    target_gene.gene_ids = [
-        GeneID(**gene_id)
-        for gene_id in target_gene.gene_ids
-        if isinstance(gene_id, dict)
-    ]
+    target_gene.gene_ids = [GeneID(**gene_id) for gene_id in target_gene.gene_ids if isinstance(gene_id, dict)]
 
-    target_gene.orthologs = [
-        Ortholog(**ortholog)
-        for ortholog in target_gene.orthologs
-        if isinstance(ortholog, dict)
-    ]
+    target_gene.orthologs = [Ortholog(**ortholog) for ortholog in target_gene.orthologs if isinstance(ortholog, dict)]
 
     return target_gene

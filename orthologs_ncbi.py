@@ -1,13 +1,13 @@
-import subprocess
 import json
-from pathlib import Path
 import logging
 import re
+import subprocess
 from dataclasses import dataclass, field
-from typing import Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
-from config import SPECIES_OF_INTEREST, PATH_TO_ORTHOLOGS, PATH_TO_LOGS, NCBI_API_KEY
+from config import NCBI_API_KEY, PATH_TO_LOGS, PATH_TO_ORTHOLOGS, SPECIES_OF_INTEREST
 from logging_config import setup_logging
 from utils import download_rate_limiter
 
@@ -97,9 +97,7 @@ def get_orthologs_for_gene_ncbi(
 
         logger.debug(f"CMD: {cmd}")
 
-        proc = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-        )
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if proc.returncode != 0:
             logger.error("Error running command:", proc.stderr)
