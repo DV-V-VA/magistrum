@@ -251,9 +251,11 @@ class AgingLLM:
         return index
 
     @download_rate_limiter("nebius", RATE_LIMIT_NEBIUS)
-    def llm_response(self, test_context: bool = False) -> str:
+    def llm_response(self, gene_name, rag_path, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
         load_dotenv()
+        self.gene_name = gene_name
+        self.DB_URI = rag_path  # f"{PATH_TO_RAG}/{gene_name}"
         try:
             if not os.getenv("NEBIUS_API_KEY"):
                 raise ValueError("NEBIUS_API_KEY not found in environment")
