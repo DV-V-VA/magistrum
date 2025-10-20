@@ -26,6 +26,10 @@ UNIPROT_SEARCH = "https://rest.uniprot.org/uniprotkb/search"
 ENSEMBL_SEARCH = "https://rest.ensembl.org/lookup/symbol/homo_sapiens/{}?expand=1"
 
 
+# Rate limits
+RATE_LIMIT_NEBIUS = 5
+
+
 # Paths
 PATH_TO_HUGO_DB = Path(Path(__file__).parent, "data/hugo_db/non_alt_loci_set.json")
 PATH_TO_PARSED_GENES = Path(Path(__file__).parent, "data/parsed_genes")
