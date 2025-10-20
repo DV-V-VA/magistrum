@@ -7,18 +7,28 @@ from concurrent.futures import ProcessPoolExecutor
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from llama_index.core import Settings, StorageContext, VectorStoreIndex
+from llama_index.core import (
+    Settings,
+    StorageContext,
+    VectorStoreIndex,
+    load_index_from_storage,
+)
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.schema import Document
 from llama_index.embeddings.nebius import NebiusEmbedding
 from llama_index.llms.nebius import NebiusLLM
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from pymilvus import MilvusClient
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from config import (
     PATH_TO_GENAGE_PARSED_GENES,
     PATH_TO_LOGS,
-    PATH_TO_PARSED_TEXTS,
     PATH_TO_RAG,
     RATE_LIMIT_NEBIUS,
 )
@@ -35,9 +45,9 @@ class AgingLLM:
         self.gene_name = gene_name
         self.EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-8B"
         self.EMBEDDING_LENGTH = 4096
-        self.DB_URI = f"{PATH_TO_RAG}/{gene_name}/rag.db"
+        # self.DB_URI = f"{PATH_TO_RAG}/{gene_name}/rag.db"
+        self.DB_URI = f"{PATH_TO_RAG}/{gene_name}"
         self.COLLECTION_NAME = f"{gene_name}_rag"
-        self._cached_index = None
 
     def _check_context_usage(self, index: VectorStoreIndex) -> None:
         """Test if model uses context by asking unrelated question"""
@@ -124,12 +134,13 @@ class AgingLLM:
                 api_key=os.getenv("NEBIUS_API_KEY"),
             )
 
-            db_dir = os.path.dirname(self.DB_URI)
+            # Create directory for index storage
+            db_dir = self.DB_URI  # This should be a directory path, not file
             if db_dir and not os.path.exists(db_dir):
                 os.makedirs(db_dir, exist_ok=True)
 
-            index = self._create_index_parallel(documents, self.DB_URI)
-            self._cached_index = index
+            # index = self._create_index_parallel(documents, self.DB_URI)
+            self._create_index_file_storage(documents, db_dir)
 
             logger.info(f"Created and saved index to: {self.DB_URI}")
             logger.info(f"Completed text_rag for {self.gene_name}")
@@ -138,6 +149,25 @@ class AgingLLM:
         except Exception as error:
             logger.error(f"Error in text_rag: {error}")
             raise
+
+    def _create_index_file_storage(self, documents, persist_dir):
+        """Create vector index with file storage"""
+
+        text_splitter = SentenceSplitter(
+            chunk_size=1024,
+            chunk_overlap=256,
+        )
+
+        # Create index with file storage
+        index = VectorStoreIndex.from_documents(
+            documents,
+            transformations=[text_splitter],
+        )
+
+        index.storage_context.persist(persist_dir=persist_dir)
+        logger.info(f"Persisted index to: {persist_dir}")
+
+        return index
 
     def _load_xml_documents_parallel(self, path_to_data) -> list:
         """Parallel document loading"""
@@ -228,22 +258,24 @@ class AgingLLM:
             if not os.getenv("NEBIUS_API_KEY"):
                 raise ValueError("NEBIUS_API_KEY not found in environment")
 
-            if self._cached_index is not None:
-                logger.info("Using cached index")
-                index = self._cached_index
-            else:
-                vector_store = MilvusVectorStore(
-                    uri=self.DB_URI,
-                    dim=self.EMBEDDING_LENGTH,
-                    collection_name=self.COLLECTION_NAME,
-                    overwrite=False,  # don't overwrite when loading
+            Settings.embed_model = NebiusEmbedding(
+                model_name=self.EMBEDDING_MODEL,
+                embed_batch_size=50,
+                api_key=os.getenv("NEBIUS_API_KEY"),
+            )
+
+            if not os.path.exists(self.DB_URI):
+                raise FileNotFoundError(
+                    f"Index file not found: {self.DB_URI}. Run text_rag first."
                 )
-
-                index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-                logger.info(f"Loaded index from vector db: {self.DB_URI}")
-
+            # Load index from file
+            storage_context = StorageContext.from_defaults(persist_dir=self.DB_URI)
+            index = load_index_from_storage(storage_context)
+            index._embed_model = Settings.embed_model
+            logger.info(f"Loaded index from file: {self.DB_URI}")
             Settings.llm = NebiusLLM(
-                model="openai/gpt-oss-120b", api_key=os.getenv("NEBIUS_API_KEY")
+                model="meta-llama/Llama-3.3-70B-Instruct-fast",
+                api_key=os.getenv("NEBIUS_API_KEY"),
             )
 
             # context testing if needed
@@ -254,7 +286,9 @@ class AgingLLM:
             prompt = self._create_gene_prompt()
 
             logger.info(f"🔍 Querying about gene: {self.gene_name}")
-            response = query_engine.query(prompt)
+            # response = query_engine.query(prompt)
+            response = self._llm_query_with_retry(query_engine, prompt)
+
             logger.info("\n" + "=" * 60)
             logger.info("GENE ANALYSIS RESULT:")
             logger.info("=" * 60)
@@ -267,35 +301,31 @@ class AgingLLM:
             logger.info(f"Error in llm_response: {error}")
             raise
 
-
-def run_llm(gene_name):
-    aging_llm = AgingLLM(gene_name)
-    db_path = aging_llm.text_rag(
-        path_to_data=f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml/"
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        retry=retry_if_exception_type(Exception),
     )
-    # db_path = aging_llm.text_rag("./data/test_data")
-    if db_path:
-        result = aging_llm.llm_response(test_context=False)
-    return result
+    def _llm_query_with_retry(self, query_engine, prompt):
+        """LLM query with retry logic"""
+        return query_engine.query(prompt)
 
 
-if __name__ == "__main__":
-    # debug xml content
-    # with open("output.txt", 'w', encoding='utf-8') as f:
-    #    documents = aging_llm._load_xml_documents()
-    #    for i, doc in enumerate(documents):
-    #        f.write(f"=== Document {i+1}: {doc.doc_id} ===\n")
-    #        #80 characters per line
-    #        wrapped_text = textwrap.fill(doc.text, width=80, break_long_words=False)
-    #        f.write(wrapped_text)
-    #        f.write("\n\n" + "="*80 + "\n\n")
+# def run_llm(gene_name):
+#    aging_llm = AgingLLM(gene_name)
+#    # db_path = aging_llm.text_rag(
+#    #    path_to_data=f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml/"
+#    # )
+#    db_path = aging_llm.text_rag("./data/test_data")
+#
+#    if db_path:
+#        result = aging_llm.llm_response(test_context=False)
+#    return result
 
-    # proxychains curl https://ifconfig.me - check vpn
 
-    gene_name = "NRF2"
-    results = run_llm(gene_name)
-    for gene_name, result in results:
-        print(f"\n{'=' * 60}")
-        print(f"FINAL RESULT FOR {gene_name}:")
-        print(f"{'=' * 60}")
-        print(result)
+# if __name__ == "__main__":
+# proxychains curl https://ifconfig.me - check vpn
+# gene_name = "APOE"
+# results = run_llm(gene_name)
+# print(results)
+#
