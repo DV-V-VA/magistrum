@@ -20,6 +20,7 @@ from config import (
     PATH_TO_LOGS,
     PATH_TO_PARSED_TEXTS,
     PATH_TO_RAG,
+    RATE_LIMIT_NEBIUS,
 )
 from logging_config import setup_logging
 from utils import download_rate_limiter
@@ -219,7 +220,7 @@ class AgingLLM:
 
         return index
 
-    @download_rate_limiter("nebius", 10)
+    @download_rate_limiter("nebius", RATE_LIMIT_NEBIUS)
     def llm_response(self, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
         load_dotenv()
