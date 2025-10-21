@@ -69,10 +69,10 @@ class AgingLLM:
         rely strictly on the content in the context.
 
         Structure your response exactly as follows:
-        1. Gene Overview:  Provide the full name, primary function(s),
+        1. Gene Overview:  Provide the full name or reference, primary function(s),
         chromosomal location, protein product (if available),
         and key pathways or biological processes involved.
-        If information is not available, just omit it from the section.
+        If information is not available or provided, just omit it from the section.
 
         2. Variants/Alleles: List common isoforms (e.g., SNPs with rsID),
         alleles and their prevalence in populations (e.g., allele frequencies, common
@@ -148,16 +148,14 @@ class AgingLLM:
     If no information exists for the gene, use the
     introductory statement to redirect focus constructively.
 
-    Metadata (for reference only—do not include in response):
-    - Current date and time: 03:01 PM CEST, Tuesday, October 21, 2025.
-
     **SPECIAL INSTRUCTIONS FOR VARIANTS:**
     - Describe EACH variant/isoform separately with its unique characteristics
     - Compare functional differences between isoforms when multiple are mentioned
     - Highlight any isoform-specific aging associations
 
     **SOURCE CITATION REQUIREMENTS:**
-    - For each factual claim, cite the SPECIFIC article title from the context
+    - For each factual claim, cite the SPECIFIC article title from the context,
+    if it's available. Do not cite the discussion itself!
     - Use format: [Source: Article Title]. Don't use table titles!
     - When multiple sources support a claim, cite all relevant article titles
 
