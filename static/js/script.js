@@ -106,6 +106,52 @@ class GeneSearch {
         }
     }
 
+    async performSearch(query) {
+        if (!query) return;
+
+        this.hideAutocomplete();
+        this.showLoading();
+        this.hideError();
+        this.hideGeneDetails();
+
+        try {
+            const response = await fetch(`/api/search/${encodeURIComponent(query)}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            if (data.exact_match) {
+                this.displayGene(data.gene);
+            } else if (data.suggestions && data.suggestions.length > 0) {
+                const firstSuggestion = data.suggestions[0];
+                this.performSearch(firstSuggestion.symbol);
+            } else {
+                this.showError(query);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showError(query, error.message);
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    showError(query, errorMessage = '') {
+        this.searchQuery.textContent = query;
+        const errorText = this.errorState.querySelector('.error-message');
+        if (errorText && errorMessage) {
+            errorText.textContent = errorMessage;
+        }
+        this.errorState.classList.remove('hidden');
+    }
+
     displayAutocomplete(suggestions) {
         this.autocompleteResults.innerHTML = '';
         
