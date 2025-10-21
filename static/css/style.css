@@ -1,23 +1,48 @@
-/* Основные стили */
+/* Основные стили и сброс */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+:root {
+    --primary-dark: #2D1B69;
+    --primary: #4A2A93;
+    --primary-light: #6B3FB5;
+    --accent: #9D50E9;
+    --accent-light: #B87AF5;
+    --text-light: #FFFFFF;
+    --text-gray: #E0E0E0;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-dark: linear-gradient(135deg, #2D1B69 0%, #4A2A93 100%);
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f8f9fa;
+    color: var(--text-light);
+    background: var(--gradient-dark);
+    min-height: 100vh;
+}
+
+/* Эффект glassmorphism */
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
 }
 
 /* Навигация */
 .navbar {
-    background: #2c3e50;
-    color: white;
-    padding: 1rem 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    margin: 1rem;
+    border-radius: 16px;
 }
 
 .nav-container {
@@ -26,25 +51,36 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 2rem;
+    padding: 1rem 2rem;
 }
 
 .nav-logo {
     font-size: 1.5rem;
     font-weight: bold;
-    color: white;
+    color: var(--text-light);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
 }
 
 .nav-links a {
-    color: white;
+    color: var(--text-gray);
     text-decoration: none;
-    margin-left: 2rem;
-    transition: color 0.3s;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
 }
 
 .nav-links a:hover {
-    color: #3498db;
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Основной контент */
@@ -58,39 +94,74 @@ body {
 /* Герой секция */
 .hero {
     text-align: center;
-    padding: 4rem 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 10px;
+    padding: 4rem 2rem;
     margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient);
+    opacity: 0.1;
+    border-radius: 16px;
 }
 
 .hero h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
+    font-weight: 700;
+    position: relative;
 }
 
 .hero p {
     font-size: 1.2rem;
     margin-bottom: 2rem;
     opacity: 0.9;
+    position: relative;
 }
 
 /* Кнопки */
 .btn {
     display: inline-block;
-    background: #3498db;
-    color: white;
     padding: 12px 30px;
     text-decoration: none;
-    border-radius: 5px;
-    transition: background 0.3s;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-weight: 600;
     border: none;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
-.btn:hover {
-    background: #2980b9;
+.btn-primary {
+    background: var(--accent);
+    color: var(--text-light);
+    border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(157, 80, 233, 0.3);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-light);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    transform: translateY(-2px);
 }
 
 /* Карточки фич */
@@ -102,29 +173,609 @@ body {
 }
 
 .feature-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 2.5rem 2rem;
     text-align: center;
-    transition: transform 0.3s;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.feature-card:hover::before {
+    left: 100%;
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
 }
 
 .feature-card h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: #2c3e50;
+    color: var(--text-light);
+}
+
+.feature-card p {
+    color: var(--text-gray);
+    line-height: 1.6;
+}
+
+/* Секция статистики */
+.stats-section {
+    margin: 4rem 0;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+/* Заголовки страниц */
+.page-header {
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.page-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Сетка генов */
+.genes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.gene-card {
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.gene-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.gene-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.gene-header h2 {
+    font-size: 1.5rem;
+    color: var(--text-light);
+}
+
+.gene-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.gene-info {
+    margin-bottom: 1.5rem;
+}
+
+.gene-info p {
+    margin-bottom: 0.5rem;
+    color: var(--text-gray);
+}
+
+.gene-summary h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.gene-summary p {
+    color: var(--text-gray);
+    line-height: 1.5;
+}
+
+.gene-actions {
+    margin-top: 1.5rem;
+}
+
+/* Детальная страница гена */
+.gene-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.gene-header-section {
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.gene-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.gene-title h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.gene-type-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.gene-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+.gene-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.detail-card {
+    padding: 2rem;
+}
+
+.detail-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-card h3 {
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-list, .orthologs-list, .identifiers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detail-item, .ortholog-item, .id-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item:last-child, .ortholog-item:last-child, .id-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item strong, .ortholog-item strong, .id-item strong {
+    color: var(--text-light);
+    min-width: 200px;
+}
+
+.detail-item span, .ortholog-item span, .id-item span {
+    color: var(--text-gray);
+    text-align: right;
+    flex: 1;
+}
+
+.gene-description {
+    line-height: 1.7;
+    color: var(--text-gray);
+}
+
+.gene-description br {
+    margin-bottom: 1rem;
+}
+
+/* Состояния */
+.empty-state, .error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    margin: 2rem 0;
+}
+
+.empty-icon, .error-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3, .error-state h3 {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.empty-state p, .error-state p {
+    color: var(--text-gray);
+    margin-bottom: 2rem;
+}
+
+/* О проекте */
+.about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.about-card {
+    padding: 2.5rem;
+}
+
+.about-card h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.tech-item {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.tech-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.tech-item h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.tech-item p {
+    color: var(--text-gray);
+    line-height: 1.5;
 }
 
 /* Футер */
 .footer {
-    background: #2c3e50;
-    color: white;
+    margin: 1rem;
+    border-radius: 16px;
     text-align: center;
     padding: 1.5rem;
     margin-top: 3rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+    }
+
+    .genes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gene-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-item, .ortholog-item, .id-item {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .detail-item span, .ortholog-item span, .id-item span {
+        text-align: left;
+    }
+
+    .stats-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* Анимации */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gene-card, .feature-card, .detail-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Добавьте эти стили в существующий CSS файл */
+
+/* Field component for key-value pairs */
+.field {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.field:last-child {
+    border-bottom: none;
+}
+
+.field label {
+    color: var(--text-light);
+    font-weight: 500;
+    min-width: 180px;
+    margin-right: 1rem;
+}
+
+.field span {
+    color: var(--text-gray);
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Section components */
+.detail-section {
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-content {
+    margin-top: 1rem;
+}
+
+/* Orthologs grid */
+.orthologs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.ortholog-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.ortholog-header h4 {
+    color: var(--text-light);
+    margin: 0;
+}
+
+.species-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ortholog-summary {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-summary p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Summary content */
+.summary-content {
+    line-height: 1.7;
+    color: var(--text-gray);
+}
+
+.summary-content br {
+    margin-bottom: 1rem;
+    display: block;
+    content: "";
+}
+
+/* User profile styles */
+.user-profile {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.profile-card {
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.profile-info h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+}
+
+/* Enhanced gene info in cards */
+.gene-info .field {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gene-info .field:last-child {
+    border-bottom: none;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .field label {
+        min-width: auto;
+        margin-right: 0;
+    }
+    
+    .field span {
+        text-align: left;
+    }
+    
+    .orthologs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ortholog-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    .detail-section {
+        padding: 1.5rem;
+    }
+}
+
+/* Animation for section entries */
+.detail-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

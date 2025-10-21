@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Gene {{ gene_symbol }} - Gene Analyzer{% endblock %}
+
+{% block content %}
+<div class="gene-detail-container">
+    {% if gene %}
+    <div class="gene-header-section glass">
+        <div class="gene-title">
+            <h1>Gene {{ gene.symbol }}</h1>
+            <span class="gene-type-badge">{{ gene.locus_group }}</span>
+        </div>
+        <p class="gene-subtitle">{{ gene.hgnc_name }}</p>
+    </div>
+
+    <div class="gene-details-grid">
+        <!-- Basic Information Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">🧬 Basic Information</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    <div class="field">
+                        <label>Cytogenetic Location:</label>
+                        <span>{{ gene.cytoband }}</span>
+                    </div>
+                    <div class="field">
+                        <label>Locus Group:</label>
+                        <span>{{ gene.locus_group }}</span>
+                    </div>
+                    <div class="field">
+                        <label>Last Modified:</label>
+                        <span>{{ gene.last_modified }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gene Identifiers Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">🔗 Gene Identifiers</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    {% for id_item in gene.gene_ids %}
+                    <div class="field">
+                        <label>{{ id_item.name|replace('_', ' ')|title }}:</label>
+                        <span>
+                            {% if id_item.value is string %}
+                                {{ id_item.value }}
+                            {% else %}
+                                {{ id_item.value|join(', ') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- OMIM and Database Links Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">📊 Database References</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    {% if gene.omim %}
+                    <div class="field">
+                        <label>OMIM IDs:</label>
+                        <span>{{ gene.omim|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.mane_select %}
+                    <div class="field">
+                        <label>MANE Select Transcripts:</label>
+                        <span>{{ gene.mane_select|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.uniprot_full_names %}
+                    <div class="field">
+                        <label>UniProt Names:</label>
+                        <span>{{ gene.uniprot_full_names|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Aliases and Previous Names Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">📝 Nomenclature</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    {% if gene.hgnc_alias_symbols %}
+                    <div class="field">
+                        <label>Alias Symbols:</label>
+                        <span>{{ gene.hgnc_alias_symbols|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.hgnc_alias_names %}
+                    <div class="field">
+                        <label>Alias Names:</label>
+                        <span>{{ gene.hgnc_alias_names|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.hgnc_prev_name %}
+                    <div class="field">
+                        <label>Previous Names:</label>
+                        <span>{{ gene.hgnc_prev_name|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.hgnc_prev_symbols %}
+                    <div class="field">
+                        <label>Previous Symbols:</label>
+                        <span>{{ gene.hgnc_prev_symbols|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Orthologs Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">🔄 Orthologs</h2>
+            <div class="section-content">
+                <div class="orthologs-grid">
+                    {% for ortholog in gene.orthologs %}
+                    <div class="ortholog-card">
+                        <div class="ortholog-header">
+                            <h4>{{ ortholog.common_name }}</h4>
+                            <span class="species-badge">{{ ortholog.taxname }}</span>
+                        </div>
+                        <div class="field-group">
+                            <div class="field">
+                                <label>Symbol:</label>
+                                <span>{{ ortholog.symbol }}</span>
+                            </div>
+                            <div class="field">
+                                <label>Description:</label>
+                                <span>{{ ortholog.description }}</span>
+                            </div>
+                            {% if ortholog.synonyms %}
+                            <div class="field">
+                                <label>Synonyms:</label>
+                                <span>{{ ortholog.synonyms|join(', ') }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if ortholog.summary %}
+                        <div class="ortholog-summary">
+                            <p>{{ ortholog.summary[0].description }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Summary Section -->
+        <div class="detail-section glass full-width">
+            <h2 class="section-title">📋 Detailed Analysis</h2>
+            <div class="section-content">
+                <div class="summary-content">
+                    {{ gene.llm_summary|replace('\n', '<br>')|safe }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% else %}
+    <div class="error-state glass">
+        <div class="error-icon">❌</div>
+        <h3>Gene {{ gene_symbol }} Not Found</h3>
+        <p>Please check the gene symbol or data file availability</p>
+        <a href="{{ url_for('genes_list') }}" class="btn btn-primary">Back to Catalog</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

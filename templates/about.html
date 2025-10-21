@@ -1,28 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}О нас - Мой сайт{% endblock %}
+{% block title %}About - Gene Analyzer{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>О нашей компании</h1>
-    <p>Узнайте больше о том, что мы делаем</p>
+<div class="page-header glass">
+    <h1>About GeneLab Project</h1>
+    <p>Modern platform for genetic data analysis</p>
 </div>
 
 <div class="about-content">
-    <div class="about-text">
-        <h2>Наша миссия</h2>
-        <p>Мы создаем современные веб-приложения используя передовые технологии.</p>
-        
-        <h2>Наша команда</h2>
-        <p>Опытные разработчики, дизайнеры и менеджеры проектов.</p>
-        
-        <h2>Технологии</h2>
-        <ul>
-            <li>FastAPI - современный фреймворк для веб-API</li>
-            <li>Jinja2 - мощный движок шаблонов</li>
-            <li>Python - основной язык программирования</li>
-            <li>HTML5/CSS3/JavaScript - фронтенд технологии</li>
-        </ul>
+    <div class="about-card glass">
+        <h2>🎯 Our Mission</h2>
+        <p>We create intuitive tools for gene research and their impact on aging and longevity processes.</p>
+    </div>
+
+    <div class="about-card glass">
+        <h2>🛠 Technologies</h2>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon">🐍</div>
+                <h4>FastAPI</h4>
+                <p>Modern high-performance framework</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🎨</div>
+                <h4>Glassmorphism</h4>
+                <p>Modern transparency effects</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">📊</div>
+                <h4>JSON Data</h4>
+                <p>Structured storage of genetic data</p>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

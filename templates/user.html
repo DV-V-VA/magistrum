@@ -1,23 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Профиль пользователя {{ user.name }} - Мой сайт{% endblock %}
+{% block title %}User Profile {{ user.name }} - Gene Analyzer{% endblock %}
 
 {% block content %}
 <div class="user-profile">
     <div class="profile-header">
-        <h1>Профиль пользователя</h1>
+        <h1>User Profile</h1>
     </div>
     
-    <div class="profile-card">
+    <div class="profile-card glass">
         <div class="profile-info">
             <h2>{{ user.name }}</h2>
-            <p><strong>ID:</strong> {{ user.id }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Статус:</strong> Активный пользователь</p>
+            <div class="field">
+                <label>ID:</label>
+                <span>{{ user.id }}</span>
+            </div>
+            <div class="field">
+                <label>Email:</label>
+                <span>{{ user.email }}</span>
+            </div>
+            <div class="field">
+                <label>Status:</label>
+                <span>Active User</span>
+            </div>
         </div>
         
         <div class="profile-actions">
-            <a href="{{ url_for('home') }}" class="btn">На главную</a>
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
         </div>
     </div>
 </div>

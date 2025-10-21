@@ -1,26 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %}Главная страница - Мой сайт{% endblock %}
+{% block title %}Home - Gene Analyzer{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h1>Добро пожаловать на наш сайт!</h1>
-    <p>Это главная страница, созданная с помощью FastAPI и Jinja2.</p>
-    <a href="{{ url_for('about') }}" class="btn">Узнать больше</a>
+<div class="hero glass">
+    <h1>Welcome to GeneLab!</h1>
+    <p>Modern platform for genetic data analysis with cutting-edge design</p>
+    <a href="{{ url_for('genes_list') }}" class="btn btn-primary">Explore Genes</a>
 </div>
 
 <div class="features">
-    <div class="feature-card">
-        <h3>🚀 Быстро</h3>
-        <p>FastAPI обеспечивает высокую производительность благодаря асинхронности</p>
+    <div class="feature-card glass">
+        <div class="feature-icon">🔬</div>
+        <h3>Deep Analysis</h3>
+        <p>Detailed information about genes and their impact on aging processes</p>
     </div>
-    <div class="feature-card">
-        <h3>⚡ Просто</h3>
-        <p>Интуитивно понятный API и автоматическая документация</p>
+    <div class="feature-card glass">
+        <div class="feature-icon">🎨</div>
+        <h3>Modern Design</h3>
+        <p>Intuitive interface with glassmorphism effects</p>
     </div>
-    <div class="feature-card">
-        <h3>🔧 Мощно</h3>
-        <p>Встроенная валидация данных и поддержка современных стандартов</p>
+    <div class="feature-card glass">
+        <div class="feature-icon">⚡</div>
+        <h3>Fast Performance</h3>
+        <p>High performance based on FastAPI and modern technologies</p>
+    </div>
+</div>
+
+<div class="stats-section">
+    <div class="stats-container glass">
+        <div class="stat-item">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Genes in Database</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">99+</div>
+            <div class="stat-label">Analysis Variants</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Data Access</div>
+        </div>
     </div>
 </div>
 {% endblock %}
