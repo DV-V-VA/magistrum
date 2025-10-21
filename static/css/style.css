@@ -36,6 +36,11 @@ body {
     box-shadow: var(--shadow);
 }
 
+/* Утилиты */
+.hidden {
+    display: none !important;
+}
+
 /* Навигация */
 .navbar {
     position: sticky;
@@ -91,39 +96,327 @@ body {
     min-height: calc(100vh - 140px);
 }
 
-/* Герой секция */
-.hero {
+/* Герой секция с поиском */
+.search-hero {
     text-align: center;
-    padding: 4rem 2rem;
     margin-bottom: 3rem;
+}
+
+.hero-content {
+    padding: 4rem 2rem;
     position: relative;
     overflow: hidden;
 }
 
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--gradient);
-    opacity: 0.1;
-    border-radius: 16px;
-}
-
-.hero h1 {
+.hero-content h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
     font-weight: 700;
-    position: relative;
 }
 
-.hero p {
+.hero-content p {
     font-size: 1.2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
     opacity: 0.9;
+}
+
+/* Контейнер поиска */
+.search-container {
     position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-box {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+#geneSearch {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#geneSearch:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#geneSearch::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#searchButton {
+    padding: 1rem 2rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-icon {
+    font-size: 1.1rem;
+}
+
+/* Выпадающий список автодополнения */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-dropdown.active {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.suggestion-symbol {
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.suggestion-name {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.suggestion-location {
+    color: var(--accent-light);
+    font-size: 0.8rem;
+    text-align: left;
+}
+
+/* Состояния загрузки и ошибок */
+.loading-state, .error-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin: 2rem auto;
+    max-width: 500px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-state h3 {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.error-state p {
+    color: var(--text-gray);
+    margin-bottom: 1rem;
+}
+
+.suggestion {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Карточка деталей гена */
+.gene-details-container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.gene-header-section {
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.gene-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.gene-title h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.gene-symbol {
+    color: var(--accent-light);
+}
+
+.gene-type-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.gene-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+.gene-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Секции деталей */
+.detail-section {
+    padding: 2rem;
+}
+
+.detail-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-content {
+    margin-top: 1rem;
+}
+
+/* Поля и группы */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.field {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.field:last-child {
+    border-bottom: none;
+}
+
+.field label {
+    color: var(--text-light);
+    font-weight: 500;
+    min-width: 200px;
+    margin-right: 1rem;
+}
+
+.field span {
+    color: var(--text-gray);
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+}
+
+/* Ортологи */
+.orthologs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.ortholog-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.ortholog-header h4 {
+    color: var(--text-light);
+    margin: 0;
+}
+
+.species-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ortholog-summary {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-summary p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 /* Кнопки */
@@ -152,308 +445,7 @@ body {
     box-shadow: 0 10px 25px rgba(157, 80, 233, 0.3);
 }
 
-.btn-outline {
-    background: transparent;
-    color: var(--text-light);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.btn-outline:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--accent);
-    transform: translateY(-2px);
-}
-
-/* Карточки фич */
-.features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin: 3rem 0;
-}
-
-.feature-card {
-    padding: 2.5rem 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s;
-}
-
-.feature-card:hover::before {
-    left: 100%;
-}
-
-.feature-card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.feature-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.feature-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-light);
-}
-
-.feature-card p {
-    color: var(--text-gray);
-    line-height: 1.6;
-}
-
-/* Секция статистики */
-.stats-section {
-    margin: 4rem 0;
-}
-
-.stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    padding: 3rem 2rem;
-    text-align: center;
-}
-
-.stat-item {
-    padding: 1rem;
-}
-
-.stat-number {
-    font-size: 3rem;
-    font-weight: bold;
-    background: var(--gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    color: var(--text-gray);
-    font-weight: 500;
-}
-
-/* Заголовки страниц */
-.page-header {
-    padding: 3rem 2rem;
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.page-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-}
-
-.page-header p {
-    font-size: 1.2rem;
-    opacity: 0.9;
-}
-
-/* Сетка генов */
-.genes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-}
-
-.gene-card {
-    padding: 2rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.gene-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.gene-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.gene-header h2 {
-    font-size: 1.5rem;
-    color: var(--text-light);
-}
-
-.gene-badge {
-    background: var(--accent);
-    color: var(--text-light);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.gene-info {
-    margin-bottom: 1.5rem;
-}
-
-.gene-info p {
-    margin-bottom: 0.5rem;
-    color: var(--text-gray);
-}
-
-.gene-summary h4 {
-    margin-bottom: 0.5rem;
-    color: var(--text-light);
-}
-
-.gene-summary p {
-    color: var(--text-gray);
-    line-height: 1.5;
-}
-
-.gene-actions {
-    margin-top: 1.5rem;
-}
-
-/* Детальная страница гена */
-.gene-detail-container {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.gene-header-section {
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.gene-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.gene-title h1 {
-    font-size: 2.5rem;
-    margin: 0;
-}
-
-.gene-type-badge {
-    background: var(--accent);
-    color: var(--text-light);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-}
-
-.gene-subtitle {
-    font-size: 1.2rem;
-    color: var(--text-gray);
-    margin: 0;
-}
-
-.gene-details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.detail-card {
-    padding: 2rem;
-}
-
-.detail-card.full-width {
-    grid-column: 1 / -1;
-}
-
-.detail-card h3 {
-    margin-bottom: 1.5rem;
-    color: var(--text-light);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.detail-list, .orthologs-list, .identifiers-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.detail-item, .ortholog-item, .id-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.detail-item:last-child, .ortholog-item:last-child, .id-item:last-child {
-    border-bottom: none;
-}
-
-.detail-item strong, .ortholog-item strong, .id-item strong {
-    color: var(--text-light);
-    min-width: 200px;
-}
-
-.detail-item span, .ortholog-item span, .id-item span {
-    color: var(--text-gray);
-    text-align: right;
-    flex: 1;
-}
-
-.gene-description {
-    line-height: 1.7;
-    color: var(--text-gray);
-}
-
-.gene-description br {
-    margin-bottom: 1rem;
-}
-
-/* Состояния */
-.empty-state, .error-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    margin: 2rem 0;
-}
-
-.empty-icon, .error-icon {
-    font-size: 4rem;
-    margin-bottom: 1.5rem;
-}
-
-.empty-state h3, .error-state h3 {
-    margin-bottom: 1rem;
-    color: var(--text-light);
-}
-
-.empty-state p, .error-state p {
-    color: var(--text-gray);
-    margin-bottom: 2rem;
-}
-
-/* О проекте */
+/* Страница About */
 .about-content {
     display: flex;
     flex-direction: column;
@@ -508,54 +500,6 @@ body {
     margin-top: 3rem;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    .nav-links {
-        gap: 1rem;
-    }
-
-    .hero h1 {
-        font-size: 2rem;
-    }
-
-    .features {
-        grid-template-columns: 1fr;
-    }
-
-    .genes-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .gene-details-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .detail-item, .ortholog-item, .id-item {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-start;
-    }
-
-    .detail-item span, .ortholog-item span, .id-item span {
-        text-align: left;
-    }
-
-    .stats-container {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .main-content {
-        padding: 1rem;
-    }
-}
-
 /* Анимации */
 @keyframes fadeInUp {
     from {
@@ -568,214 +512,100 @@ body {
     }
 }
 
-.gene-card, .feature-card, .detail-card {
+.detail-section {
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* Добавьте эти стили в существующий CSS файл */
-
-/* Field component for key-value pairs */
-.field {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.field:last-child {
-    border-bottom: none;
-}
-
-.field label {
-    color: var(--text-light);
-    font-weight: 500;
-    min-width: 180px;
-    margin-right: 1rem;
-}
-
-.field span {
-    color: var(--text-gray);
-    text-align: right;
-    flex: 1;
-    word-break: break-word;
-}
-
-.field-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-/* Section components */
-.detail-section {
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-.detail-section.full-width {
-    grid-column: 1 / -1;
-}
-
-.section-title {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-light);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.section-content {
-    margin-top: 1rem;
-}
-
-/* Orthologs grid */
-.orthologs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.ortholog-card {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ortholog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.ortholog-header h4 {
-    color: var(--text-light);
-    margin: 0;
-}
-
-.species-badge {
-    background: var(--accent);
-    color: var(--text-light);
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.ortholog-summary {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ortholog-summary p {
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-/* Summary content */
-.summary-content {
-    line-height: 1.7;
-    color: var(--text-gray);
-}
-
-.summary-content br {
-    margin-bottom: 1rem;
-    display: block;
-    content: "";
-}
-
-/* User profile styles */
-.user-profile {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.profile-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.profile-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.profile-card {
-    padding: 2.5rem;
-    text-align: center;
-}
-
-.profile-info h2 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-light);
-}
-
-/* Enhanced gene info in cards */
-.gene-info .field {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.gene-info .field:last-child {
-    border-bottom: none;
-}
-
-/* Responsive improvements */
+/* Адаптивность */
 @media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    #searchButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .gene-details-grid {
+        grid-template-columns: 1fr;
+    }
+
     .field {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
     }
-    
+
     .field label {
         min-width: auto;
         margin-right: 0;
     }
-    
+
     .field span {
         text-align: left;
     }
-    
+
     .orthologs-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .ortholog-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
     }
-    
+
     .section-title {
         font-size: 1.3rem;
     }
-    
+
     .detail-section {
         padding: 1.5rem;
     }
-}
 
-/* Animation for section entries */
-.detail-section {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+    .main-content {
+        padding: 1rem;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .gene-title {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .gene-title h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content {
+        padding: 2rem 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.75rem;
+    }
+
+    .about-card {
+        padding: 1.5rem;
+    }
+
+    .tech-grid {
+        grid-template-columns: 1fr;
     }
 }
