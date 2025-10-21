@@ -58,40 +58,113 @@ class AgingLLM:
     def _create_gene_prompt(self) -> str:
         """Create structured prompt for gene analysis"""
         return f"""
-        You are a genomics expert analyzing documents for gene-aging relationships.
-        Extract and summarize all information about the gene {self.gene_name} from the
-        provided context.
+        You are a genomics expert specializing in extracting and
+        analyzing gene-related information
+        with a primary focus on relationships to aging, longevity,
+        and age-related processes.
+        Extract and summarize all information about the gene {self.gene_name}
+        solely from the provided context.
         Focus primarily on its relation to aging, longevity, or age-related processes.
+        Do not introduce external knowledge, assumptions, or hallucinations—
+        rely strictly on the content in the context.
 
         Structure your response exactly as follows:
-        1. Gene Overview: Full name, function, location (chromosome),
-        protein product, and key pathways involved.
-        2. Variants/Alleles: Common isoforms (e.g., SNPs like rsID),
-        alleles and their prevalence in populations.
-        3. Relation to Aging/Longevity:
-           - Mechanisms: How it influences aging (e.g., via oxidative stress,
-           inflammation, DNA repair, cellular senescence, or epigenetic changes).
-           - Positive Effects: Evidence of promotion of longevity (e.g.,
-           in centenarians, model organisms like C. elegans or mice).
-           - Negative Effects: Links to accelerated aging, age-related diseases
-           (e.g., Alzheimer's, cardiovascular disease, cancer), or reduced lifespan.
-           - Key Studies: Summarize findings from human GWAS, cohort studies
-           (e.g., Framingham Heart Study), or animal models. Include effect sizes
-           (e.g., odds ratios, hazard ratios) if mentioned.
-           - Biomarkers/Expression: Changes in expression levels with age,
-           or as a biomarker for biological age.
-        4. Interactions: With other genes (e.g., FOXO3, SIRT1),
-        environment (diet, exercise), or interventions
-        (e.g.,rapamycin, metformin effects on this gene).
-        5. Gaps/Uncertainty: If data is limited or conflicting, note it.
-        Suggest related genes for further query.
+        1. Gene Overview:  Provide the full name, primary function(s),
+        chromosomal location, protein product (if available),
+        and key pathways or biological processes involved.
+        If information is not available, just omit it from the section.
 
-        Base everything on the retrieved document context—
-        do not hallucinate external knowledge.
-        If no info on aging,state "No direct relation to aging found in context."
-        Be concise, use bullet points for clarity, and cite context snippets
-        (e.g., [Source: Document X, Page Y]).
-        """
+        2. Variants/Alleles: List common isoforms (e.g., SNPs with rsID),
+        alleles and their prevalence in populations (e.g., allele frequencies, common
+        neutral variants).
+           - For each variant, isoform, or allele, describe its specific function,
+           role, or effects in a separate bullet.
+            - If no variants or alleles are available, omit this section or
+            include a single bullet stating: "Information on variants or alleles
+            is limited; the gene's role is summarized as follows:
+            [briefly summarize any general gene function or context if applicable]."
+            - Cite all info according to citations requirements further!
+            - If there is no specific information about variant or allele,
+            conclude that it is neutral.
+
+        3. Relation to Aging/Longevity:
+           - Mechanisms: Describe how the gene influences aging processes (e.g.,
+           oxidative stress, inflammation, DNA repair, cellular senescence,
+           epigenetic regulation).
+           - Positive Effects: Summarize evidence linking the gene to extended
+           longevity,
+           healthy aging, or protective effects (e.g., in centenarians,
+           long-lived populations, or model organisms like C. elegans, mice,
+           rat, drosofila or yeast).
+           - Negative Effects: Summarize links to accelerated aging, reduced lifespan,
+           or age-related diseases (e.g., Alzheimer's, cardiovascular disease, cancer,
+           diabetes).
+           - Key Studies: Provide concise summaries of relevant studies
+           from the context,
+           such as human GWAS, cohort studies (e.g., Framingham Heart Study,UK Biobank),
+           or animal models. Include specific findings like effect sizes
+           (e.g., odds ratios, hazard ratios, p-values) if provided.
+           - Biomarkers/Expression: Describe changes in gene expression with age,
+           its role as a biomarker for biological age, or related metrics
+           (e.g., methylation patterns)
+           - If a subsection lacks information, state:
+           "Current data is limited for this aspect."
+        4. Interactions: Detail interactions with other genes (e.g.,FOXO3, SIRT1, IGF1),
+        environmental factors (e.g., diet, exercise, stress),
+        or interventions (e.g., effects of drugs like rapamycin,
+        metformin, or caloric restriction on this gene).
+            - Use separate bullets for each type of interaction.
+            - If no interactions are available, omit this section
+            or include a single bullet stating:
+            "Interactions with other genes or factors are not detailed; the gene's
+            role is summarized as follows:
+            [briefly summarize any general gene function or context if applicable]."
+        5. Gaps/Uncertainty:  Highlight limitations, conflicting data, sparse evidence,
+        or uncertainties in the context. If data is robust, state:
+        "Data in the provided context is consistent with no significant gaps."
+        Suggest 1-3 related genes or topics for further investigation
+        if implied by the context (e.g., "Consider querying IGF1 for pathway overlaps").
+
+        Key Instructions:
+    - Source Fidelity: Base every claim exclusively on the provided context.
+    Do not infer, generalize, or add details not explicitly stated.
+    - Conciseness: Keep summaries brief and factual—aim for 1-3 sentences per bullet.
+    Avoid redundancy across sections.
+    - Handling Multiples: List and describe each variant, study, or interaction
+    separately without grouping unless the context does so.
+    - Neutrality: Report information objectively, without bias or speculation.
+    - Edge Cases: If the context is ambiguous, note it in Section 5.
+    If the gene is mentioned but not in an aging context,
+    extract general information and note the absence
+    of aging-related data in Section 3.
+    - Tone: Use professional, clear language suitable for a descriptive output,
+    avoiding overly technical jargon unless directly supported by the context.
+    "not described," or "no data available," focusing on available data or seamlessly
+    omitting unavailable sections.
+    - Missing Data Handling: For Variants/Alleles and Interactions,
+    if no data is available, either omit the section
+    or provide a neutral summary of the gene's role (if applicable)
+    to maintain a positive, informative tone.
+    If no information exists for the gene, use the
+    introductory statement to redirect focus constructively.
+
+    Metadata (for reference only—do not include in response):
+    - Current date and time: 03:01 PM CEST, Tuesday, October 21, 2025.
+
+    **SPECIAL INSTRUCTIONS FOR VARIANTS:**
+    - Describe EACH variant/isoform separately with its unique characteristics
+    - Compare functional differences between isoforms when multiple are mentioned
+    - Highlight any isoform-specific aging associations
+
+    **SOURCE CITATION REQUIREMENTS:**
+    - For each factual claim, cite the SPECIFIC article title from the context
+    - Use format: [Source: Article Title]. Don't use table titles!
+    - When multiple sources support a claim, cite all relevant article titles
+
+    If the context contains NO information whatsoever about {self.gene_name},
+    respond with:
+    "No information available about {self.gene_name} in the provided documents."
+            """
 
     def _preprocess_xml(self, xml_content: str) -> str:
         try:
@@ -314,7 +387,6 @@ class AgingLLM:
 
 
 # def run_llm(gene_name):
-#    aging_llm = AgingLLM(gene_name)
 #    # db_path = aging_llm.text_rag(
 #    #    path_to_data=f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml/"
 #    # )
@@ -324,8 +396,11 @@ class AgingLLM:
 #        result = aging_llm.llm_response(test_context=False)
 #    return result
 
-
 # if __name__ == "__main__":
+#    gene_name = ""
+#    aging_llm = AgingLLM(gene_name)
+#    aging_llm.text_rag(f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml")
+#    aging_llm.llm_response(gene_name, f"{PATH_TO_RAG}/{gene_name}")
 # proxychains curl https://ifconfig.me - check vpn
 # gene_name = "APOE"
 # results = run_llm(gene_name)
