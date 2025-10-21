@@ -61,8 +61,9 @@ class Gene:
         synonyms_list = []
         for ortholog in self.orthologs:
             synonyms_list.append(ortholog.symbol)
-            for synonym in ortholog.synonyms:
-                synonyms_list.append(synonym)
+            if ortholog.synonyms:
+                for synonym in ortholog.synonyms:
+                    synonyms_list.append(synonym)
 
         return QueryInput(protein_symbol=self.symbol, synonyms=list(set(synonyms_list)))
 
@@ -154,6 +155,8 @@ def get_target_gene_with_orthologs_from_file(gene_file: Path) -> Gene:
 
     with open(gene_file) as f:
         target_gene = Gene(**json.load(f))
+
+    # logger.info(target_gene)
 
     target_gene.gene_ids = [
         GeneID(**gene_id)
