@@ -34,9 +34,7 @@ def run_pipeline(
 
     # Declare paths
     gene_file = Path(path_to_output, f"{gene_name}.json")
-    parsed_full_text_folder_path = Path(
-        PATH_TO_PARSED_TEXTS, f"{gene_name}/triage/fulltext_xml"
-    )
+    parsed_full_text_folder_path = Path(PATH_TO_PARSED_TEXTS, gene_name)
     complete_gene_file = Path(PATH_TO_COMPLETE_GENES, f"{gene_name}.json")
     rag_path = Path(PATH_TO_RAG, gene_name)
 
@@ -79,7 +77,10 @@ def run_pipeline(
 
     # Extract full texts
     try:
-        if force_rerun or not parsed_full_text_folder_path.exists():
+        if (
+            force_rerun
+            or not Path(parsed_full_text_folder_path, "triage/fulltext_xml").exists()
+        ):
             logger.info(f"Started parsing texts for {gene_name}")
             run_text_parser_all(query_input, str(parsed_full_text_folder_path))
         else:
@@ -94,7 +95,10 @@ def run_pipeline(
         llm = AgingLLM(target_gene.symbol)
         ### Construct rag if forced or no rag
         if force_rerun or not rag_path.exists():
-            rag_path = llm.text_rag(str(parsed_full_text_folder_path))
+            rag_path = llm.text_rag(
+                str(Path(parsed_full_text_folder_path, "triage/fulltext_xml"))
+            )
+            print(rag_path)
         ### Get llm summary for gene
         target_gene.llm_summary = llm.llm_response(target_gene.symbol, str(rag_path))
     except Exception as e:

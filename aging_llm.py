@@ -188,10 +188,12 @@ class AgingLLM:
 
             if not os.path.exists(path_to_data):
                 raise FileNotFoundError(f"Data directory not found: {path_to_data}")
-
+            print("path_to_data:", path_to_data)
             xml_files = [f for f in os.listdir(path_to_data) if f.endswith(".xml")]
+            print("xml_files:", xml_files)
 
             genage_file = f"{PATH_TO_GENAGE_PARSED_GENES}/{self.gene_name}.xml"
+            print(genage_file)
             if os.path.exists(genage_file):
                 shutil.copy(genage_file, path_to_data)
                 logger.info(f"Downloaded additional info for {self.gene_name}")
@@ -268,6 +270,8 @@ class AgingLLM:
                         documents.append(result)
                 except Exception as error:
                     logger.error(f"File {filename} generated an exception: {error}")
+
+        print(documents)
 
         return documents
 
@@ -349,7 +353,7 @@ class AgingLLM:
             index._embed_model = Settings.embed_model  # type: ignore
             logger.info(f"Loaded index from file: {self.DB_URI}")
             Settings.llm = NebiusLLM(
-                model="meta-llama/Llama-3.3-70B-Instruct-fast",
+                model="gpt-oss-120b",
                 api_key=os.getenv("NEBIUS_API_KEY"),
             )
 
@@ -384,25 +388,3 @@ class AgingLLM:
     def _llm_query_with_retry(self, query_engine, prompt):
         """LLM query with retry logic"""
         return query_engine.query(prompt)
-
-
-# def run_llm(gene_name):
-#    # db_path = aging_llm.text_rag(
-#    #    path_to_data=f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml/"
-#    # )
-#    db_path = aging_llm.text_rag("./data/test_data")
-#
-#    if db_path:
-#        result = aging_llm.llm_response(test_context=False)
-#    return result
-
-# if __name__ == "__main__":
-#    gene_name = ""
-#    aging_llm = AgingLLM(gene_name)
-#    aging_llm.text_rag(f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml")
-#    aging_llm.llm_response(gene_name, f"{PATH_TO_RAG}/{gene_name}")
-# proxychains curl https://ifconfig.me - check vpn
-# gene_name = "APOE"
-# results = run_llm(gene_name)
-# print(results)
-#

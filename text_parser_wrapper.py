@@ -14,7 +14,7 @@ def run_text_parser_all(query_input: QueryInput, out_prefix: str):
 
     logger.info(
         f"Parsing texts for {query_input.protein_symbol} and its "
-        + "synonyms {query_input.synonyms}",
+        + f"synonyms {query_input.synonyms}",
     )
 
     cmd = [
@@ -36,8 +36,8 @@ def run_text_parser_all(query_input: QueryInput, out_prefix: str):
     if result.returncode == 0:
         logger.info(
             f"Finished text parsing for {query_input.protein_symbol} "
-            + "and its synonyms {query_input.synonyms}. "
-            + "Results will be at {out_prefix}",
+            + f"and its synonyms {query_input.synonyms}. "
+            + f"Results will be at {out_prefix}",
         )
         print("ok")
     else:
