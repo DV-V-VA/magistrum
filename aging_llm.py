@@ -285,7 +285,6 @@ class AgingLLM:
             clean_text = self._preprocess_xml(xml_content)
 
             if clean_text:
-                # print(Document(text=clean_text, doc_id=filename))
                 return Document(text=clean_text, doc_id=filename)
 
         except Exception as error:
@@ -353,7 +352,7 @@ class AgingLLM:
             index._embed_model = Settings.embed_model  # type: ignore
             logger.info(f"Loaded index from file: {self.DB_URI}")
             Settings.llm = NebiusLLM(
-                model="gpt-oss-120b",
+                model="meta-llama/Llama-3.3-70B-Instruct-fast",
                 api_key=os.getenv("NEBIUS_API_KEY"),
             )
 

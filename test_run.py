@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 for gene in final_gene_list:
     try:
-        run_pipeline(gene, force_rerun=True)
+        run_pipeline(gene)  # , force_rerun=True)
     except Exception as e:
         logger.error(gene)
         logger.error(e)
