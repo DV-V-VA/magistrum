@@ -273,7 +273,7 @@ class AgingLLM:
             # Load index from file
             storage_context = StorageContext.from_defaults(persist_dir=self.DB_URI)
             index = load_index_from_storage(storage_context)
-            index._embed_model = Settings.embed_model
+            index._embed_model = Settings.embed_model  # type: ignore
             logger.info(f"Loaded index from file: {self.DB_URI}")
             Settings.llm = NebiusLLM(
                 model="meta-llama/Llama-3.3-70B-Instruct-fast",
@@ -282,7 +282,7 @@ class AgingLLM:
 
             # context testing if needed
             if test_context:
-                self._check_context_usage(index)
+                self._check_context_usage(index)  # type: ignore
 
             query_engine = index.as_query_engine()
             prompt = self._create_gene_prompt()
