@@ -34,7 +34,9 @@ def run_pipeline(
 
     # Declare paths
     gene_file = Path(path_to_output, f"{gene_name}.json")
-    parsed_full_text_folder_path = Path(PATH_TO_PARSED_TEXTS, gene_name)
+    parsed_full_text_folder_path = Path(
+        PATH_TO_PARSED_TEXTS, f"{gene_name}/triage/fulltext_xml"
+    )
     complete_gene_file = Path(PATH_TO_COMPLETE_GENES, f"{gene_name}.json")
     rag_path = Path(PATH_TO_RAG, gene_name)
 
