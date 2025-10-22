@@ -1,28 +1,16 @@
 #!/usr/bin/env python3
-"""Единая точка входа проекта (dispatcher — диспетчер подкоманд).
-
-Команды:
-  - pipeline [-- ...]  → запускает оригинальный longevity/pipeline.py как скрипт
-  - genage   [-- ...]  → запускает longevity/genage_parser.py
-  - proteinkb [-- ...] → запускает longevity/proteinkb_parse/main.py (проксирование CLI)
-
-Примечание: опции после названия подкоманды передаются "как есть" (pass-through —
-«прямой проброс») в оригинальные скрипты. Ключевые модули проекта не изменяются.
-"""
 import argparse
 import os
 import sys
 import runpy
 import traceback
 
-# .env (переменные окружения): не обязателен
 try:
     from dotenv import load_dotenv  # type: ignore
     load_dotenv()
 except Exception:
     pass
 
-# Логирование: используем модуль проекта, если есть; иначе fallback
 def _fallback_setup_logging(log_dir: str = "data/logs"):
     import logging, os
     os.makedirs(log_dir, exist_ok=True)
