@@ -1,4 +1,0 @@
-
-aiohttp>=3.9.5
-sentence-transformers>=2.2.2  # used if --use_semantic
-jsonschema>=4.22.0
