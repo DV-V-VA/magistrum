@@ -17,7 +17,7 @@ PUBTATOR = PUBTATOR = (
     "https://www.ncbi.nlm.nih.gov/research/pubtator3-api/publications/export/biocjson?pmids={pmids}&full=true"
 )
 
-SCORE_MIN_FOR_FULLTEXT = 50  # fetch fulltext only if score > 40
+SCORE_MIN_FOR_FULLTEXT = 40  # fetch fulltext only if score > 40
 
 HTTP_HEADERS = {
     "User-Agent": "proteinkb/0.1 (+contact@example.org)",
