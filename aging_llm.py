@@ -3,10 +3,7 @@ import logging
 import os
 import re
 import shutil
-import tempfile
-from concurrent.futures import ProcessPoolExecutor
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -38,7 +35,7 @@ from config import (
 from logging_config import setup_logging
 from utils import download_rate_limiter
 
-PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
+# PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
@@ -328,24 +325,20 @@ class AgingLLM:
         )
 
         return index
-    
+
     def load_index_parallel_sync(self):
         """Simpler parallel loading without async complexity"""
         with ThreadPoolExecutor(max_workers=4) as executor:
             storage_context_future = executor.submit(
-                StorageContext.from_defaults, 
-                persist_dir=self.DB_URI
+                StorageContext.from_defaults, persist_dir=self.DB_URI
             )
             index_future = executor.submit(
-                load_index_from_storage, 
-                storage_context_future.result()
+                load_index_from_storage, storage_context_future.result()
             )
             return index_future.result()
 
     @download_rate_limiter("nebius", RATE_LIMIT_NEBIUS)
-    def llm_response(
-        self, gene_name, rag_path, test_context: bool = False
-    ) -> str:
+    def llm_response(self, gene_name, rag_path, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
         load_dotenv()
         self.gene_name = gene_name
@@ -365,13 +358,15 @@ class AgingLLM:
                     f"Index file not found: {self.DB_URI}. Run text_rag first."
                 )
             # Load index from file
-            logger.info(f"Loading index from file with parallel execution: {self.DB_URI}")
+            logger.info(
+                f"Loading index from file with parallel execution: {self.DB_URI}"
+            )
             index = self.load_index_parallel_sync()
-            index._embed_model = Settings.embed_model
+            index._embed_model = Settings.embed_model  # type: ignore
 
-            #storage_context = StorageContext.from_defaults(persist_dir=self.DB_URI)
-            #index = load_index_from_storage(storage_context)
-            #index._embed_model = Settings.embed_model
+            # storage_context = StorageContext.from_defaults(persist_dir=self.DB_URI)
+            # index = load_index_from_storage(storage_context)
+            # index._embed_model = Settings.embed_model
             logger.info(f"Loaded index from file: {self.DB_URI}")
             Settings.llm = NebiusLLM(
                 model="meta-llama/Llama-3.3-70B-Instruct-fast",
