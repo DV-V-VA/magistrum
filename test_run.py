@@ -19,7 +19,7 @@ final_gene_list.extend(gene_list)
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
-for gene in ["A2M"]:
+for gene in ["alpha-2-macroglobulin"]:
     try:
         run_pipeline(gene, force_rerun=True)
     except Exception as e:
