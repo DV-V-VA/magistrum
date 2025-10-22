@@ -5,7 +5,7 @@
 make setup
 ```
 
-## Запуск (единая точка входа)
+## Запуск
 ```bash
 python main.py
 
