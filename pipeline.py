@@ -23,6 +23,10 @@ setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
 
+class GeneNotFoundError(Exception):
+    pass
+
+
 def run_pipeline(
     gene_name: str,
     save_output: bool = True,
@@ -34,7 +38,11 @@ def run_pipeline(
     logger.info("Starting pipeline")
 
     # Resolve gene name
-    gene_name = resolve_gene_name(gene_name)
+    try:
+        gene_name = resolve_gene_name(gene_name)
+    except KeyError:
+        logger.error(f"Could not resolve {gene_name}, will return empty")
+        raise GeneNotFoundError
 
     # Declare paths
     gene_file = Path(path_to_output, f"{gene_name}.json")
