@@ -1,0 +1,17 @@
+name: pipeline_dev
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - ncbi
+  - pandas
+  - ipykernel
+  - ncbi-datasets-cli
+  - python-dotenv
+  - requests
+  - pre_commit
+  - ruff
+  - llama-index
+  - llama-index-vector-stores-qdrant
+  - bs4
+  - lxml

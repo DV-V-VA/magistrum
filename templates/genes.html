@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Genes Catalog - Gene Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header glass">
+    <h1>Genes Catalog</h1>
+    <p>Explore our database of genes and their impact on aging processes</p>
+</div>
+
+<div class="genes-grid">
+    {% if genes %}
+        {% for gene in genes %}
+        <div class="gene-card glass">
+            <div class="gene-header">
+                <h2>{{ gene.symbol }}</h2>
+                <span class="gene-badge">{{ gene.locus_group }}</span>
+            </div>
+            
+            <div class="gene-info">
+                <div class="field">
+                    <label>Location:</label>
+                    <span>{{ gene.cytoband }}</span>
+                </div>
+                <div class="field">
+                    <label>HGNC Name:</label>
+                    <span>{{ gene.hgnc_name }}</span>
+                </div>
+                {% if gene.omim %}
+                <div class="field">
+                    <label>OMIM:</label>
+                    <span>{{ gene.omim[0] }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="gene-summary">
+                <h4>Summary:</h4>
+                <p>{{ gene.llm_summary[:200] }}...</p>
+            </div>
+
+            <div class="gene-actions">
+                <a href="{{ url_for('gene_detail', gene_symbol=gene.symbol) }}" class="btn btn-outline">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state glass">
+        <div class="empty-icon">🧬</div>
+        <h3>No Gene Data Found</h3>
+        <p>Please check if JSON files are available in the data directory</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

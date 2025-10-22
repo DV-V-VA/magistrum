@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Gene {{ gene_symbol }} - Gene Analyzer{% endblock %}
+
+{% block content %}
+<div class="gene-detail-container">
+    {% if gene %}
+    <!-- Заголовок гена -->
+    <div class="gene-header-section">
+        <div class="gene-title">
+            <h1>Gene {{ gene.symbol }}</h1>
+            <span class="gene-type-badge">{{ gene.locus_group }}</span>
+        </div>
+        <p class="gene-subtitle">{{ gene.hgnc_name }}</p>
+    </div>
+
+    <!-- LLM Summary - САМЫЙ ПЕРВЫЙ БЛОК ПОСЛЕ ЗАГОЛОВКА -->
+    {% if gene.llm_summary %}
+    <div class="llm-summary-section accent-block">
+        <div class="section-header">
+            <div class="accent-line"></div>
+            <h2>Summary</h2>
+        </div>
+        <div class="llm-summary-content">
+            {{ gene.llm_summary|replace('\n', '<br>')|safe }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="gene-details-grid">
+        <!-- Basic Information -->
+        <div class="detail-section">
+            <div class="section-header">
+                <div class="accent-line"></div>
+                <h2>Basic Information</h2>
+            </div>
+            <div class="section-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-icon"></div>
+                        <div class="info-content">
+                            <label>Cytogenetic Location</label>
+                            <span>{{ gene.cytoband or 'N/A' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"></div>
+                        <div class="info-content">
+                            <label>Locus Group</label>
+                            <span>{{ gene.locus_group or 'N/A' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"></div>
+                        <div class="info-content">
+                            <label>Last Modified</label>
+                            <span>{{ gene.last_modified or 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database References -->
+        <div class="detail-section">
+            <div class="section-header">
+                <div class="accent-line"></div>
+                <h2>Database References</h2>
+            </div>
+            <div class="section-content">
+                <div class="references-grid">
+                    {% if gene.omim %}
+                    <div class="reference-item">
+                        <div class="reference-icon"></div>
+                        <div class="reference-content">
+                            <label>OMIM</label>
+                            <span>{{ gene.omim|join(', ') }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.mane_select %}
+                    <div class="reference-item">
+                        <div class="reference-icon"></div>
+                        <div class="reference-content">
+                            <label>MANE Select</label>
+                            <span>{{ gene.mane_select|join(', ') }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.uniprot_full_names %}
+                    <div class="reference-item">
+                        <div class="reference-icon"></div>
+                        <div class="reference-content">
+                            <label>UniProt</label>
+                            <span>{{ gene.uniprot_full_names|join(', ') }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Aliases & Previous Names -->
+        <div class="detail-section">
+            <div class="section-header">
+                <div class="accent-line"></div>
+                <h2>Nomenclature</h2>
+            </div>
+            <div class="section-content">
+                <div class="aliases-grid">
+                    {% if gene.hgnc_alias_symbols %}
+                    <div class="alias-category">
+                        <div class="category-header">
+                            <div class="category-icon"></div>
+                            <h3>Alias Symbols</h3>
+                        </div>
+                        <div class="alias-list">
+                            {{ gene.hgnc_alias_symbols|join(', ') }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.hgnc_alias_names %}
+                    <div class="alias-category">
+                        <div class="category-header">
+                            <div class="category-icon"></div>
+                            <h3>Alias Names</h3>
+                        </div>
+                        <div class="alias-list">
+                            {{ gene.hgnc_alias_names|join(', ') }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if gene.hgnc_prev_name %}
+                    <div class="alias-category">
+                        <div class="category-header">
+                            <div class="category-icon"></div>
+                            <h3>Previous Names</h3>
+                        </div>
+                        <div class="alias-list">
+                            {{ gene.hgnc_prev_name|join(', ') }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Orthologs -->
+        {% if gene.orthologs %}
+        <div class="detail-section">
+            <div class="section-header">
+                <div class="accent-line"></div>
+                <h2>Orthologs</h2>
+            </div>
+            <div class="section-content">
+                <div class="orthologs-grid">
+                    {% for ortholog in gene.orthologs %}
+                    <div class="ortholog-card">
+                        <div class="ortholog-header">
+                            <h3>{{ ortholog.common_name }}</h3>
+                            <span class="species-tag">{{ ortholog.taxname }}</span>
+                        </div>
+                        <div class="ortholog-details">
+                            <div class="ortholog-field">
+                                <label>Symbol</label>
+                                <span>{{ ortholog.symbol }}</span>
+                            </div>
+                            <div class="ortholog-field">
+                                <label>Tax ID</label>
+                                <span>{{ ortholog.tax_id }}</span>
+                            </div>
+                            {% if ortholog.synonyms %}
+                            <div class="ortholog-field">
+                                <label>Synonyms</label>
+                                <span>{{ ortholog.synonyms|join(', ') }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if ortholog.summary %}
+                        <div class="ortholog-summary">
+                            <p>{{ ortholog.summary[0].description }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Gene Identifiers - компактный блок внизу -->
+    {% if gene.gene_ids %}
+    <div class="identifiers-section compact-section">
+        <div class="section-header">
+            <div class="accent-line"></div>
+            <h2>Technical Details</h2>
+        </div>
+        <div class="identifiers-grid">
+            {% for id_item in gene.gene_ids %}
+            <div class="identifier-item">
+                <div class="identifier-icon"></div>
+                <div class="identifier-content">
+                    <label>{{ id_item.name|replace('_', ' ')|title }}</label>
+                    <span>
+                        {% if id_item.value is string %}
+                            {{ id_item.value }}
+                        {% else %}
+                            {{ id_item.value|join(', ') }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="error-state">
+        <div class="error-icon">!</div>
+        <h3>Gene {{ gene_symbol }} Not Found</h3>
+        <p>Please check the gene symbol or data file availability</p>
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Search</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

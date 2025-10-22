@@ -1,0 +1,1259 @@
+/* Основные стили и сброс */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-dark: #2D1B69;
+    --primary: #4A2A93;
+    --primary-light: #6B3FB5;
+    --accent: #9D50E9;
+    --accent-light: #B87AF5;
+    --text-light: #FFFFFF;
+    --text-gray: #E0E0E0;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-dark: linear-gradient(135deg, #2D1B69 0%, #4A2A93 100%);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--text-light);
+    background: var(--gradient-dark);
+    min-height: 100vh;
+}
+
+/* Эффект glassmorphism */
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+/* Утилиты */
+.hidden {
+    display: none !important;
+}
+
+/* Навигация */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    margin: 1rem;
+    border-radius: 16px;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-gray);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.nav-links a:hover {
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Основной контент */
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: calc(100vh - 140px);
+}
+
+/* Герой секция с поиском */
+.search-hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero-content {
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+    opacity: 0.9;
+}
+
+/* Контейнер поиска */
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-box {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+#geneSearch {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#geneSearch:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#geneSearch::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#searchButton {
+    padding: 1rem 2rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-icon {
+    font-size: 1.1rem;
+}
+
+/* Выпадающий список автодополнения */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-dropdown.active {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.suggestion-symbol {
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.suggestion-name {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.suggestion-location {
+    color: var(--accent-light);
+    font-size: 0.8rem;
+    text-align: left;
+}
+
+/* Состояния загрузки и ошибок */
+.loading-state, .error-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin: 2rem auto;
+    max-width: 500px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-state h3 {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.error-state p {
+    color: var(--text-gray);
+    margin-bottom: 1rem;
+}
+
+.suggestion {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Карточка деталей гена */
+.gene-details-container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.gene-header-section {
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.gene-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.gene-title h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.gene-symbol {
+    color: var(--accent-light);
+}
+
+.gene-type-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.gene-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+.gene-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Секции деталей */
+.detail-section {
+    padding: 2rem;
+}
+
+.detail-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-content {
+    margin-top: 1rem;
+}
+
+/* Поля и группы */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.field {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.field:last-child {
+    border-bottom: none;
+}
+
+.field label {
+    color: var(--text-light);
+    font-weight: 500;
+    min-width: 200px;
+    margin-right: 1rem;
+}
+
+.field span {
+    color: var(--text-gray);
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+}
+
+/* Ортологи */
+.orthologs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.ortholog-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.ortholog-header h4 {
+    color: var(--text-light);
+    margin: 0;
+}
+
+.species-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ortholog-summary {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-summary p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--text-light);
+    border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(157, 80, 233, 0.3);
+}
+
+/* Страница About */
+.about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.about-card {
+    padding: 2.5rem;
+}
+
+.about-card h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.tech-item {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.tech-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.tech-item h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+.tech-item p {
+    color: var(--text-gray);
+    line-height: 1.5;
+}
+
+/* Футер */
+.footer {
+    margin: 1rem;
+    border-radius: 16px;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 3rem;
+}
+
+/* Анимации */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.detail-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    #searchButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .gene-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .field label {
+        min-width: auto;
+        margin-right: 0;
+    }
+
+    .field span {
+        text-align: left;
+    }
+
+    .orthologs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ortholog-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .detail-section {
+        padding: 1.5rem;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+
+    .gene-title {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .gene-title h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content {
+        padding: 2rem 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.75rem;
+    }
+
+    .about-card {
+        padding: 1.5rem;
+    }
+
+    .tech-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Добавьте в существующий CSS */
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.health-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    z-index: 1001;
+}
+
+.health-status.healthy {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    border: 1px solid #2ecc71;
+}
+
+.health-status.unhealthy {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+/* Gene Detail Redesign - Minimalist Style */
+
+.gene-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Gene Header */
+.gene-header-section {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.gene-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.gene-title h1 {
+    font-size: 3rem;
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+.gene-type-badge {
+    background: var(--accent);
+    color: var(--text-light);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.gene-subtitle {
+    font-size: 1.3rem;
+    color: var(--text-gray);
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Section Headers with Accent Line */
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.accent-line {
+    width: 4px;
+    height: 24px;
+    background: var(--accent);
+    margin-right: 1rem;
+    border-radius: 2px;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* LLM Summary - Accent Block */
+.summary-section {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    backdrop-filter: blur(10px);
+}
+
+.summary-section.accent-block {
+    background: rgba(157, 80, 233, 0.05);
+    border-color: rgba(157, 80, 233, 0.2);
+}
+
+.summary-content {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.summary-content br {
+    margin-bottom: 1rem;
+    display: block;
+    content: "";
+}
+
+/* Gene Details Grid */
+.gene-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.detail-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+/* Info Grid with Icons */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-icon {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-light);
+    border-radius: 1px;
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-content label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-content span {
+    color: var(--text-gray);
+    font-size: 1rem;
+}
+
+/* References Grid */
+.references-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.reference-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.reference-icon {
+    width: 6px;
+    height: 6px;
+    background: var(--text-gray);
+    border-radius: 50%;
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+}
+
+.reference-content {
+    flex: 1;
+}
+
+.reference-content label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.reference-content span {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+}
+
+/* Aliases Grid */
+.aliases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.alias-category {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.category-icon {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 1px;
+    transform: rotate(45deg);
+}
+
+.category-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.alias-list {
+    color: var(--text-gray);
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+/* Orthologs */
+.orthologs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.ortholog-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.ortholog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.species-tag {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-gray);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.ortholog-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.ortholog-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ortholog-field label {
+    font-weight: 500;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.ortholog-field span {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+.ortholog-summary {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ortholog-summary p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Gene Identifiers - Compact Section */
+.identifiers-section {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.identifiers-section.compact-section {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.identifiers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.identifier-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.identifier-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.identifier-icon {
+    width: 4px;
+    height: 4px;
+    background: var(--text-gray);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.identifier-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.identifier-content label {
+    display: block;
+    font-weight: 500;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin-bottom: 0.125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.identifier-content span {
+    color: var(--text-gray);
+    font-size: 0.85rem;
+    word-break: break-word;
+}
+
+/* Error State */
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.error-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid rgba(231, 76, 60, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.error-state h3 {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.error-state p {
+    color: var(--text-gray);
+    margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .gene-title {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .gene-title h1 {
+        font-size: 2.5rem;
+    }
+    
+    .summary-section {
+        padding: 2rem 1.5rem;
+    }
+    
+    .summary-content {
+        font-size: 1rem;
+    }
+    
+    .detail-section {
+        padding: 1.5rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .references-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .aliases-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .orthologs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .identifiers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ortholog-field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .ortholog-field span {
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .gene-header-section {
+        padding: 1.5rem 0;
+    }
+    
+    .gene-title h1 {
+        font-size: 2rem;
+    }
+    
+    .gene-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .summary-section {
+        padding: 1.5rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.detail-section, .summary-section, .identifiers-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* LLM Summary - Special Styling */
+.llm-summary-section {
+    background: rgba(157, 80, 233, 0.08);
+    border: 1.5px solid rgba(157, 80, 233, 0.25);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.llm-summary-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+}
+
+.llm-summary-section.accent-block {
+    background: rgba(157, 80, 233, 0.05);
+    border-color: rgba(157, 80, 233, 0.2);
+}
+
+.llm-summary-content {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+.llm-summary-content br {
+    margin-bottom: 1.2rem;
+    display: block;
+    content: "";
+}
+
+/* Enhanced section header for LLM summary */
+.llm-summary-section .section-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(157, 80, 233, 0.3);
+}
+
+.llm-summary-section .accent-line {
+    width: 5px;
+    height: 28px;
+    background: var(--accent-light);
+    margin-right: 1rem;
+    border-radius: 2px;
+}
+
+.llm-summary-section .section-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* Responsive adjustments for LLM summary */
+@media (max-width: 768px) {
+    .llm-summary-section {
+        padding: 2rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .llm-summary-content {
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+    
+    .llm-summary-section .section-header h2 {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .llm-summary-section {
+        padding: 1.5rem;
+    }
+    
+    .llm-summary-content {
+        font-size: 1rem;
+    }
+}
+
+/* Ensure LLM summary is always first visually */
+.gene-detail-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.llm-summary-section {
+    order: 1;
+}
+
+.gene-header-section {
+    order: 0;
+}
+
+.gene-details-grid {
+    order: 2;
+}
+
+.identifiers-section {
+    order: 3;
+}

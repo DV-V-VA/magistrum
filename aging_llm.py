@@ -3,7 +3,7 @@ import logging
 import os
 import re
 import shutil
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -188,10 +188,12 @@ class AgingLLM:
 
             if not os.path.exists(path_to_data):
                 raise FileNotFoundError(f"Data directory not found: {path_to_data}")
-
+            print("path_to_data:", path_to_data)
             xml_files = [f for f in os.listdir(path_to_data) if f.endswith(".xml")]
+            print("xml_files:", xml_files)
 
             genage_file = f"{PATH_TO_GENAGE_PARSED_GENES}/{self.gene_name}.xml"
+            print(genage_file)
             if os.path.exists(genage_file):
                 shutil.copy(genage_file, path_to_data)
                 logger.info(f"Downloaded additional info for {self.gene_name}")
@@ -269,6 +271,8 @@ class AgingLLM:
                 except Exception as error:
                     logger.error(f"File {filename} generated an exception: {error}")
 
+        print(documents)
+
         return documents
 
     def _process_single_xml(self, path_to_data, filename):
@@ -281,7 +285,6 @@ class AgingLLM:
             clean_text = self._preprocess_xml(xml_content)
 
             if clean_text:
-                # print(Document(text=clean_text, doc_id=filename))
                 return Document(text=clean_text, doc_id=filename)
 
         except Exception as error:
@@ -323,6 +326,17 @@ class AgingLLM:
 
         return index
 
+    def load_index_parallel_sync(self):
+        """Simpler parallel loading without async complexity"""
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            storage_context_future = executor.submit(
+                StorageContext.from_defaults, persist_dir=self.DB_URI
+            )
+            index_future = executor.submit(
+                load_index_from_storage, storage_context_future.result()
+            )
+            return index_future.result()
+
     @download_rate_limiter("nebius", RATE_LIMIT_NEBIUS)
     def llm_response(self, gene_name, rag_path, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
@@ -344,9 +358,15 @@ class AgingLLM:
                     f"Index file not found: {self.DB_URI}. Run text_rag first."
                 )
             # Load index from file
-            storage_context = StorageContext.from_defaults(persist_dir=self.DB_URI)
-            index = load_index_from_storage(storage_context)
+            logger.info(
+                f"Loading index from file with parallel execution: {self.DB_URI}"
+            )
+            index = self.load_index_parallel_sync()
             index._embed_model = Settings.embed_model  # type: ignore
+
+            # storage_context = StorageContext.from_defaults(persist_dir=self.DB_URI)
+            # index = load_index_from_storage(storage_context)
+            # index._embed_model = Settings.embed_model
             logger.info(f"Loaded index from file: {self.DB_URI}")
             Settings.llm = NebiusLLM(
                 model="meta-llama/Llama-3.3-70B-Instruct-fast",
@@ -386,23 +406,8 @@ class AgingLLM:
         return query_engine.query(prompt)
 
 
-# def run_llm(gene_name):
-#    # db_path = aging_llm.text_rag(
-#    #    path_to_data=f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml/"
-#    # )
-#    db_path = aging_llm.text_rag("./data/test_data")
-#
-#    if db_path:
-#        result = aging_llm.llm_response(test_context=False)
-#    return result
-
-# if __name__ == "__main__":
-#    gene_name = ""
-#    aging_llm = AgingLLM(gene_name)
-#    aging_llm.text_rag(f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml")
-#    aging_llm.llm_response(gene_name, f"{PATH_TO_RAG}/{gene_name}")
-# proxychains curl https://ifconfig.me - check vpn
-# gene_name = "APOE"
-# results = run_llm(gene_name)
-# print(results)
-#
+if __name__ == "__main__":
+    gene_name = "APOE"
+    aging_llm = AgingLLM(gene_name)
+    # aging_llm.text_rag(f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml")
+    print(aging_llm.llm_response(gene_name, f"{PATH_TO_RAG}/{gene_name}"))
