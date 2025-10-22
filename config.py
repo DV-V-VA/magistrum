@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -46,7 +47,10 @@ PATH_TO_GENAGE_MODEL_GENES = Path(
     Path(__file__).parent, "data/genage_genes/genage_model.csv"
 )
 # PATH_TO_TEST_DATA_LLM = Path(Path(__file__).parent, "data/test_data")
-PATH_TO_LOGS = Path(Path(__file__).parent, "data/logs/pipeline.log")
+PATH_TO_LOGS = Path(
+    Path(__file__).parent,
+    f"data/logs/{datetime.now().strftime('%Y%m%d%H%M%S')}_pipeline.log",
+)
 
 # Create paths
 PATH_TO_LOGS.parent.mkdir(exist_ok=True, parents=True)
