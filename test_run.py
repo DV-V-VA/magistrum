@@ -19,9 +19,9 @@ final_gene_list.extend(gene_list)
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
-for gene in final_gene_list:
+for gene in ["A2M"]:
     try:
-        run_pipeline(gene)  # , force_rerun=True)
+        run_pipeline(gene, force_rerun=True)
     except Exception as e:
         logger.error(gene)
         logger.error(e)
