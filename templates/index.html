@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Gene Search - Gene Analyzer{% endblock %}
+
+{% block content %}
+<div class="search-hero">
+    <div class="hero-content glass">
+        <h1>Discover Gene Information</h1>
+        <p>Search for genes by symbol, name, or ID to explore detailed genetic data</p>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="geneSearch" 
+                    placeholder="Enter gene name or symbol (e.g., TP53, BRCA1)..."
+                    autocomplete="off"
+                >
+                <button id="searchButton" class="btn btn-primary">
+                    <span class="search-icon">🔍</span>
+                    Search
+                </button>
+            </div>
+            
+            <!-- Autocomplete dropdown -->
+            <div id="autocompleteResults" class="autocomplete-dropdown glass"></div>
+        </div>
+        
+        <!-- Loading state -->
+        <div id="loadingState" class="loading-state glass hidden">
+            <div class="loading-spinner"></div>
+            <p>Searching gene database...</p>
+        </div>
+        
+        <!-- Error state -->
+        <div id="errorState" class="error-state glass hidden">
+            <div class="error-icon">❌</div>
+            <h3>Gene Not Found</h3>
+            <p>No matching genes found for "<span id="searchQuery"></span>"</p>
+            <p class="suggestion">Try searching with a different gene symbol or name</p>
+        </div>
+    </div>
+</div>
+
+<!-- Gene Details Card -->
+<div id="geneDetails" class="gene-details-container hidden">
+    <!-- Gene details will be inserted here by JavaScript -->
+</div>
+
+<!-- Gene details template (hidden) -->
+<template id="geneTemplate">
+    <div class="gene-header-section glass">
+        <div class="gene-title">
+            <h1>Gene <span class="gene-symbol"></span></h1>
+            <span class="gene-type-badge"></span>
+        </div>
+        <p class="gene-subtitle"></p>
+    </div>
+
+    <!-- ДОБАВЛЕН БЛОК LLM SUMMARY -->
+    <div class="llm-summary-section accent-block glass" id="llmSummarySection" style="display: none;">
+        <div class="section-header">
+            <div class="accent-line"></div>
+            <h2>Summary</h2>
+        </div>
+        <div class="llm-summary-content" id="llmSummaryContent">
+            <!-- LLM summary will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <div class="gene-details-grid">
+        <!-- Basic Information Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">🧬 Basic Information</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    <div class="field">
+                        <label>Cytogenetic Location:</label>
+                        <span class="cytoband">N/A</span>
+                    </div>
+                    <div class="field">
+                        <label>Locus Group:</label>
+                        <span class="locus-group">N/A</span>
+                    </div>
+                    <div class="field">
+                        <label>Last Modified:</label>
+                        <span class="last-modified">N/A</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gene Identifiers Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">🔗 Gene Identifiers</h2>
+            <div class="section-content">
+                <div class="field-group" id="identifiersContainer">
+                    <!-- Identifiers will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Database References Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">📊 Database References</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    <div class="field omim-field">
+                        <label>OMIM IDs:</label>
+                        <span class="omim-ids">N/A</span>
+                    </div>
+                    <div class="field mane-field">
+                        <label>MANE Select Transcripts:</label>
+                        <span class="mane-select">N/A</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aliases Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">📝 Aliases & Previous Names</h2>
+            <div class="section-content">
+                <div class="field-group">
+                    <div class="field alias-symbols-field">
+                        <label>Alias Symbols:</label>
+                        <span class="alias-symbols">N/A</span>
+                    </div>
+                    <div class="field alias-names-field">
+                        <label>Alias Names:</label>
+                        <span class="alias-names">N/A</span>
+                    </div>
+                    <div class="field prev-names-field">
+                        <label>Previous Names:</label>
+                        <span class="prev-names">N/A</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orthologs Section -->
+        <div class="detail-section glass">
+            <h2 class="section-title">🔄 Orthologs</h2>
+            <div class="section-content">
+                <div class="orthologs-grid" id="orthologsContainer">
+                    <!-- Orthologs will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Autocomplete item template -->
+<template id="suggestionTemplate">
+    <div class="suggestion-item">
+        <div class="suggestion-main">
+            <strong class="suggestion-symbol"></strong>
+            <span class="suggestion-name"></span>
+        </div>
+        <div class="suggestion-location"></div>
+    </div>
+</template>
+{% endblock %}
