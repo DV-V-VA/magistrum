@@ -35,6 +35,7 @@ class Gene:
 
     refseq_summary: str = field(default="No summary found")
     llm_summary: str = field(default="No LLM summary yet")
+    llm_variants: str = field(default="No LLM summary yet")
 
     uniprot_full_names: list[str] = field(default_factory=list)
     all_aliases: list[str] = field(default_factory=list)

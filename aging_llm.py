@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import shutil
+import tempfile
 from concurrent.futures import ProcessPoolExecutor
 
 from bs4 import BeautifulSoup
@@ -31,11 +32,12 @@ from config import (
     PATH_TO_LOGS,
     PATH_TO_RAG,
     RATE_LIMIT_NEBIUS,
+    PATH_TO_PARSED_TEXTS
 )
 from logging_config import setup_logging
 from utils import download_rate_limiter
 
-# PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
+PATH_TO_LOGS = os.path.join(tempfile.gettempdir(), "aging_llm.log")
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
@@ -55,9 +57,9 @@ class AgingLLM:
         test_response = query_engine.query("When was the moon landing?")
         logger.info(f"Context test: {test_response}")
 
-    def _create_gene_prompt(self) -> str:
+    def _create_gene_prompt(self, section_name:str) -> str:
         """Create structured prompt for gene analysis"""
-        return f"""
+        base_prompt = f"""
         You are a genomics expert specializing in extracting and
         analyzing gene-related information
         with a primary focus on relationships to aging, longevity,
@@ -67,14 +69,55 @@ class AgingLLM:
         Focus primarily on its relation to aging, longevity, or age-related processes.
         Do not introduce external knowledge, assumptions, or hallucinations—
         rely strictly on the content in the context.
+        
+        Key Instructions:
+        - Source Fidelity: Base every claim exclusively on the provided context.
+        Do not infer, generalize, or add details not explicitly stated.
+        - Conciseness: Keep summaries brief and factual—aim for 1-3 sentences per bullet.
+        Avoid redundancy across sections.
+        - Handling Multiples: List and describe each variant, study, or interaction
+        separately without grouping unless the context does so.
+        - Neutrality: Report information objectively, without bias or speculation.
+        - Edge Cases: If the context is ambiguous, note it in Section 5.
+        If the gene is mentioned but not in an aging context,
+        extract general information and note the absence
+        of aging-related data in Section 3.
+        - Tone: Use professional, clear language suitable for a descriptive output,
+        avoiding overly technical jargon unless directly supported by the context.
+        "not described," or "no data available," focusing on available data or seamlessly
+        omitting unavailable sections.
+        - Missing Data Handling: For Variants/Alleles and Interactions,
+        if no data is available, either omit the section
+        or provide a neutral summary of the gene's role (if applicable)
+        to maintain a positive, informative tone.
+        If no information exists for the gene, use the
+        introductory statement to redirect focus constructively.
 
-        Structure your response exactly as follows:
-        1. Gene Overview:  Provide the full name or reference, primary function(s),
+        **SPECIAL INSTRUCTIONS FOR VARIANTS:**
+        - Describe EACH variant/isoform separately with its unique characteristics
+        - Compare functional differences between isoforms when multiple are mentioned
+        - Highlight any isoform-specific aging associations
+
+        **SOURCE CITATION REQUIREMENTS:**
+        - For each factual claim, cite the SPECIFIC article title from the context,
+        if it's available. Do not cite the discussion itself!
+        - Use format: [Source: Article Title]. Don't use table titles!
+        - When multiple sources support a claim, cite all relevant article titles
+
+        If the context contains NO information whatsoever about {self.gene_name},
+        respond with:
+        "No information available about {self.gene_name} in the provided documents."
+        """
+        if section_name=="Gene Overview":
+            prompt = f""" {base_prompt}
+        Section 1. Gene Overview:  For {self.gene_name} provide the full name or reference, primary function(s),
         chromosomal location, protein product (if available),
         and key pathways or biological processes involved.
         If information is not available or provided, just omit it from the section.
-
-        2. Variants/Alleles: List common isoforms (e.g., SNPs with rsID),
+        """
+        elif section_name=="Variants/Alleles":
+            prompt=f"""{base_prompt}
+        Section 2. Variants/Alleles: For {self.gene_name} list common isoforms (e.g., SNPs with rsID),
         alleles and their prevalence in populations (e.g., allele frequencies, common
         neutral variants).
            - For each variant, isoform, or allele, describe its specific function,
@@ -86,8 +129,10 @@ class AgingLLM:
             - Cite all info according to citations requirements further!
             - If there is no specific information about variant or allele,
             conclude that it is neutral.
-
-        3. Relation to Aging/Longevity:
+        """
+        elif section_name=="Relation to Aging/Longevity":
+            prompt==f""" {base_prompt}
+        Section 3. Relation to Aging/Longevity: For {self.gene_name} find:
            - Mechanisms: Describe how the gene influences aging processes (e.g.,
            oxidative stress, inflammation, DNA repair, cellular senescence,
            epigenetic regulation).
@@ -109,7 +154,10 @@ class AgingLLM:
            (e.g., methylation patterns)
            - If a subsection lacks information, state:
            "Current data is limited for this aspect."
-        4. Interactions: Detail interactions with other genes (e.g.,FOXO3, SIRT1, IGF1),
+        """
+        elif section_name=="Interactions":
+            prompt=f"""{base_prompt}  
+        Section 4. Interactions: For {self.gene_name} find detail interactions with other genes (e.g.,FOXO3, SIRT1, IGF1),
         environmental factors (e.g., diet, exercise, stress),
         or interventions (e.g., effects of drugs like rapamycin,
         metformin, or caloric restriction on this gene).
@@ -119,50 +167,16 @@ class AgingLLM:
             "Interactions with other genes or factors are not detailed; the gene's
             role is summarized as follows:
             [briefly summarize any general gene function or context if applicable]."
-        5. Gaps/Uncertainty:  Highlight limitations, conflicting data, sparse evidence,
-        or uncertainties in the context. If data is robust, state:
-        "Data in the provided context is consistent with no significant gaps."
-        Suggest 1-3 related genes or topics for further investigation
+        """
+        elif section_name=="Related Genes":
+            prompt=f"""{base_prompt}
+        Section 5. Gaps/Uncertainty:  For {self.gene_name} suggest 1-3 related genes or topics for further investigation
         if implied by the context (e.g., "Consider querying IGF1 for pathway overlaps").
-
-        Key Instructions:
-    - Source Fidelity: Base every claim exclusively on the provided context.
-    Do not infer, generalize, or add details not explicitly stated.
-    - Conciseness: Keep summaries brief and factual—aim for 1-3 sentences per bullet.
-    Avoid redundancy across sections.
-    - Handling Multiples: List and describe each variant, study, or interaction
-    separately without grouping unless the context does so.
-    - Neutrality: Report information objectively, without bias or speculation.
-    - Edge Cases: If the context is ambiguous, note it in Section 5.
-    If the gene is mentioned but not in an aging context,
-    extract general information and note the absence
-    of aging-related data in Section 3.
-    - Tone: Use professional, clear language suitable for a descriptive output,
-    avoiding overly technical jargon unless directly supported by the context.
-    "not described," or "no data available," focusing on available data or seamlessly
-    omitting unavailable sections.
-    - Missing Data Handling: For Variants/Alleles and Interactions,
-    if no data is available, either omit the section
-    or provide a neutral summary of the gene's role (if applicable)
-    to maintain a positive, informative tone.
-    If no information exists for the gene, use the
-    introductory statement to redirect focus constructively.
-
-    **SPECIAL INSTRUCTIONS FOR VARIANTS:**
-    - Describe EACH variant/isoform separately with its unique characteristics
-    - Compare functional differences between isoforms when multiple are mentioned
-    - Highlight any isoform-specific aging associations
-
-    **SOURCE CITATION REQUIREMENTS:**
-    - For each factual claim, cite the SPECIFIC article title from the context,
-    if it's available. Do not cite the discussion itself!
-    - Use format: [Source: Article Title]. Don't use table titles!
-    - When multiple sources support a claim, cite all relevant article titles
-
-    If the context contains NO information whatsoever about {self.gene_name},
-    respond with:
-    "No information available about {self.gene_name} in the provided documents."
-            """
+        """
+        else:
+            logger.info("Section name is not provided or incorrect") 
+        return prompt
+ 
 
     def _preprocess_xml(self, xml_content: str) -> str:
         try:
@@ -325,7 +339,7 @@ class AgingLLM:
         return index
 
     @download_rate_limiter("nebius", RATE_LIMIT_NEBIUS)
-    def llm_response(self, gene_name, rag_path, test_context: bool = False) -> str:
+    def llm_response(self, gene_name, rag_path, section_name:str, test_context: bool = False) -> str:
         """Generate LLM response for gene analysis. VPN is required."""
         load_dotenv()
         self.gene_name = gene_name
@@ -359,7 +373,7 @@ class AgingLLM:
                 self._check_context_usage(index)  # type: ignore
 
             query_engine = index.as_query_engine()
-            prompt = self._create_gene_prompt()
+            prompt = self._create_gene_prompt(section_name=section_name)
 
             logger.info(f"🔍 Querying about gene: {self.gene_name}")
             # response = query_engine.query(prompt)
@@ -385,3 +399,10 @@ class AgingLLM:
     def _llm_query_with_retry(self, query_engine, prompt):
         """LLM query with retry logic"""
         return query_engine.query(prompt)
+
+
+if __name__ == "__main__":
+    gene_name = "SOX2"
+    aging_llm = AgingLLM(gene_name)
+    #aging_llm.text_rag(f"{PATH_TO_PARSED_TEXTS}/{gene_name}/triage/fulltext_xml")
+    print(aging_llm.llm_response(gene_name, f"{PATH_TO_RAG}/{gene_name}", section_name="Gene Overview"))
