@@ -71,51 +71,6 @@ class GeneSearch {
 
         try {
             const response = await fetch(`/api/search/${encodeURIComponent(query)}`);
-            const data = await response.json();
-
-            if (data.exact_match) {
-                this.displayGene(data.gene);
-            } else if (data.suggestions && data.suggestions.length > 0) {
-                // If there are suggestions but no exact match, show the first one
-                const firstSuggestion = data.suggestions[0];
-                this.performSearch(firstSuggestion.symbol);
-            } else {
-                this.showError(query);
-            }
-        } catch (error) {
-            console.error('Search error:', error);
-            this.showError(query);
-        } finally {
-            this.hideLoading();
-        }
-    }
-
-    async showAutocomplete(query) {
-        try {
-            const response = await fetch(`/api/search/${encodeURIComponent(query)}`);
-            const data = await response.json();
-
-            if (data.suggestions && data.suggestions.length > 0) {
-                this.displayAutocomplete(data.suggestions);
-            } else {
-                this.hideAutocomplete();
-            }
-        } catch (error) {
-            console.error('Autocomplete error:', error);
-            this.hideAutocomplete();
-        }
-    }
-
-    async performSearch(query) {
-        if (!query) return;
-
-        this.hideAutocomplete();
-        this.showLoading();
-        this.hideError();
-        this.hideGeneDetails();
-
-        try {
-            const response = await fetch(`/api/search/${encodeURIComponent(query)}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -140,6 +95,22 @@ class GeneSearch {
             this.showError(query, error.message);
         } finally {
             this.hideLoading();
+        }
+    }
+
+    async showAutocomplete(query) {
+        try {
+            const response = await fetch(`/api/search/${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            if (data.suggestions && data.suggestions.length > 0) {
+                this.displayAutocomplete(data.suggestions);
+            } else {
+                this.hideAutocomplete();
+            }
+        } catch (error) {
+            console.error('Autocomplete error:', error);
+            this.hideAutocomplete();
         }
     }
 
@@ -198,6 +169,9 @@ class GeneSearch {
         clone.querySelector('.gene-type-badge').textContent = geneData.locus_group;
         clone.querySelector('.gene-subtitle').textContent = geneData.hgnc_name;
         
+        // Fill LLM Summary (НОВАЯ ФУНКЦИОНАЛЬНОСТЬ)
+        this.fillLLMSummary(clone, geneData.llm_summary);
+        
         // Fill basic information
         clone.querySelector('.cytoband').textContent = geneData.cytoband || 'N/A';
         clone.querySelector('.locus-group').textContent = geneData.locus_group || 'N/A';
@@ -222,6 +196,25 @@ class GeneSearch {
         
         // Scroll to gene details
         this.geneDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // НОВАЯ ФУНКЦИЯ: Заполнение LLM Summary
+    fillLLMSummary(container, llmSummary) {
+        const llmSummarySection = container.getElementById('llmSummarySection');
+        const llmSummaryContent = container.getElementById('llmSummaryContent');
+        
+        if (llmSummary && llmSummary !== 'No information available about SOX2 in the provided documents.') {
+            // Форматируем текст: заменяем переносы строк на <br> и обрабатываем маркированные списки
+            let formattedSummary = llmSummary
+                .replace(/\n/g, '<br>')
+                .replace(/\d+\.\s/g, '<br><strong>$&</strong>') // Выделяем нумерованные пункты
+                .replace(/-\s/g, '<br>• '); // Заменяем дефисы на bullet points
+            
+            llmSummaryContent.innerHTML = formattedSummary;
+            llmSummarySection.style.display = 'block';
+        } else {
+            llmSummarySection.style.display = 'none';
+        }
     }
 
     fillIdentifiers(container, geneIds) {
@@ -356,11 +349,6 @@ class GeneSearch {
 
     hideLoading() {
         this.loadingState.classList.add('hidden');
-    }
-
-    showError(query) {
-        this.searchQuery.textContent = query;
-        this.errorState.classList.remove('hidden');
     }
 
     hideError() {

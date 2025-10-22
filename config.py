@@ -47,3 +47,19 @@ PATH_TO_GENAGE_MODEL_GENES = Path(
 )
 PATH_TO_TEST_DATA_LLM = Path(Path(__file__).parent, "data/test_data")
 PATH_TO_LOGS = Path(Path(__file__).parent, "data/logs/pipeline.log")
+
+# Конфигурация приложения
+class Config:
+    # Путь к данным генов
+    GENES_DATA_PATH = os.getenv('GENES_DATA_PATH', '/srv/data/202510221102_complete_genes')
+    
+    # Настройки кэша
+    CACHE_ENABLED = True
+    CACHE_MAX_SIZE = 1000  # Максимальное количество генов в кэше
+    
+    # Настройки поиска
+    MAX_SUGGESTIONS = 10
+    SEARCH_TIMEOUT = 5  # seconds
+
+# Создаем экземпляр конфигурации
+config = Config()
