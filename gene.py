@@ -69,14 +69,14 @@ class Gene:
         return QueryInput(protein_symbol=self.symbol, synonyms=list(set(synonyms_list)))
 
 
-def update_index_if_not_present(key: str, index: dict, gene: Gene):
+def update_index_if_not_present(key: str, index: dict, gene: Gene | str):
     if key not in index:
         index[key] = gene
     else:
         logger.debug(f"{key} already in index, skipping")
 
 
-def update_index(key: list[str] | str, index: dict, gene: Gene):
+def update_index(key: list[str] | str, index: dict, gene: Gene | str):
     if isinstance(key, list):
         for key_ in key:
             update_index_if_not_present(key_, index, gene)
@@ -84,13 +84,13 @@ def update_index(key: list[str] | str, index: dict, gene: Gene):
         update_index_if_not_present(key, index, gene)
 
 
-def build_gene_index(genes: list[Gene]) -> dict[str, Gene]:
-    """Create gene index from list"""
-    logger.info("Started indexing HUGO db")
+def build_synonym_index(genes: list[Gene]) -> dict[str, str]:
+    logger.info("Started indexing synonyms HUGO db")
+
     index = {}
     for gene in genes:
-        index[gene.symbol] = gene
-        update_index(gene.hgnc_name, index, gene)
+        update_index(gene.symbol, index, gene.symbol)
+        update_index(gene.hgnc_name, index, gene.symbol)
 
         for key_list in [
             gene.uniprot_full_names,
@@ -102,15 +102,26 @@ def build_gene_index(genes: list[Gene]) -> dict[str, Gene]:
             gene.omim,
             gene.mane_select,
         ]:
-            update_index(key_list, index, gene)
+            update_index(key_list, index, gene.symbol)
 
         for gene_id in gene.gene_ids:
-            update_index(gene_id.value, index, gene)
+            update_index(gene_id.value, index, gene.symbol)
 
         for ortholog in gene.orthologs:
-            update_index(ortholog.query_gene, index, gene)
-            update_index(ortholog.symbol, index, gene)
-            update_index(ortholog.synonyms, index, gene)
+            update_index(ortholog.query_gene, index, gene.symbol)
+            update_index(ortholog.symbol, index, gene.symbol)
+            update_index(ortholog.synonyms, index, gene.symbol)
+
+    return index
+
+
+def build_gene_index(genes: list[Gene]) -> dict[str, Gene]:
+    """Create gene index from list"""
+    logger.info("Started indexing HUGO db")
+    index = {}
+
+    for gene in genes:
+        index[gene.symbol] = gene
 
     logger.info("Finished indexing HUGO db")
     logger.info(f"Total size after index inflation: {len(index)}")
@@ -210,3 +221,12 @@ def get_target_gene_with_orthologs_from_file(gene_file: Path) -> Gene:
     ]
 
     return target_gene
+
+
+def resolve_gene_name(gene_name: str) -> str:
+    all_genes = read_hugo_db()
+    synonym_index = build_synonym_index(all_genes)
+    actual_gene_name = synonym_index[gene_name]
+    logger.info(f"Resolved {gene_name} to {actual_gene_name}")
+
+    return actual_gene_name

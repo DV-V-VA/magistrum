@@ -14,6 +14,7 @@ from config import (
 from gene import (
     get_target_gene_with_orthologs_from_file,
     parse_target_gene_with_orthologs,
+    resolve_gene_name,
 )
 from logging_config import setup_logging
 from text_parser_wrapper import run_text_parser_all
@@ -32,12 +33,15 @@ def run_pipeline(
 
     logger.info("Starting pipeline")
 
+    # Resolve gene name
+    gene_name = resolve_gene_name(gene_name)
+
     # Declare paths
     gene_file = Path(path_to_output, f"{gene_name}.json")
     parsed_full_text_folder_path = Path(PATH_TO_PARSED_TEXTS, gene_name)
     complete_gene_file = Path(PATH_TO_COMPLETE_GENES, f"{gene_name}.json")
     rag_path = Path(PATH_TO_RAG, gene_name)
-    #rag_path_mutations = Path(PATH_TO_RAG, gene_name)
+    # rag_path_mutations = Path(PATH_TO_RAG, gene_name)
 
     # Create Gene obj
     try:
@@ -93,7 +97,6 @@ def run_pipeline(
 
     try:
         # Run LLM
-        section_names = ["Gene Overview", "Variants/Alleles", "Relation to Aging/Longevity", "Interactions", "Related Genes"]
         llm = AgingLLM(target_gene.symbol)
         ### Construct rag if forced or no rag
         if force_rerun or not rag_path.exists():
