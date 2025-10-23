@@ -43,7 +43,7 @@ TODO
 ### Installation
 - Unfortunately, we suggest using a combination of conda and pip environment. This has a weird ratio based on the fact that not all packages can be installed either by conda or by pip. First, install conda environment via `conda env create -f environment.yml` - this will create conda env named `magistrum_pipeline`
 - Then this env can be activated via `conda activate magistrum_pipeline`
-- After that we suggest using `pip install -rrequirements.txt` to install all the packages not available on conda
+- After that we suggest using `pip install -r requirements.txt` to install all the packages not available on conda
 - After that we suggest creating a `.env` file and placing the following data in there:
     - `OPENAI_API_BASE` - url to your LLM API
     - `NEBIUS_API_KEY` - key to your API provider (we here used Nebius as you have probably already guessed)
