@@ -28,11 +28,12 @@ class Ortholog:
     query_gene: str
     taxname: str
     common_name: str
-    tax_id: int
+    tax_id: str
     symbol: str
     synonyms: list[str]
     description: str
     summary: list[Any]
+    protein_sequence: str = field(default="")
     last_modified: str = str(datetime.now())
     prev_modified: list[str] = field(default_factory=list)
 
@@ -97,7 +98,9 @@ def get_orthologs_for_gene_ncbi(
 
         logger.debug(f"CMD: {cmd}")
 
-        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        proc = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
 
         if proc.returncode != 0:
             logger.error("Error running command:", proc.stderr)
