@@ -1,7 +1,6 @@
-name: pipeline_dev
+name: magistrum_pipeline
 channels:
   - defaults
-  - conda-forge
 dependencies:
   - ncbi
   - pandas
@@ -15,3 +14,5 @@ dependencies:
   - llama-index-vector-stores-qdrant
   - bs4
   - lxml
+  - biopython
+  - clustalo
