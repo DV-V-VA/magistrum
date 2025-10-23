@@ -608,13 +608,13 @@ async def triage(
                                     ctype and "pdf" in ctype.lower()
                                 )
                                 if is_pdf:
+                                    placeholder2 = a.pmid or (a.doi or "noid").replace(
+                                        "/", "_"
+                                    )
                                     outp = os.path.join(
                                         out_prefix,
                                         "fulltext_oa",
-                                        f"{
-                                            a.pmid
-                                            or (a.doi or 'noid').replace('/', '_')
-                                        }.pdf",
+                                        f"{placeholder2}.pdf",
                                     )
                                     os.makedirs(os.path.dirname(outp), exist_ok=True)
                                     with open(outp, "wb") as f:
