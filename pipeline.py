@@ -74,6 +74,7 @@ def run_pipeline(
                     save_output=save_output,
                     force_rerun=force_rerun,
                 )
+
     except Exception as e:
         logger.error("Error in gene obj creation!")
         logger.error(e)
