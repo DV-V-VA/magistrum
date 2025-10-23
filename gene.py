@@ -1,8 +1,13 @@
 import json
 import logging
+import subprocess
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from io import StringIO
 from pathlib import Path
+
+import requests
+from Bio import AlignIO
 
 from config import PATH_TO_HUGO_DB, PATH_TO_LOGS
 from logging_config import setup_logging
@@ -53,6 +58,11 @@ class Gene:
     mane_select: list[str] = field(default_factory=list)
     gene_ids: list[GeneID] = field(default_factory=list)
 
+    tax_id: str = field(default="9606")
+    common_name: str = field(default="Homo sapiens")
+    protein_sequence: str = field(default="9606")
+    protein_alignment: dict = field(default_factory=dict)
+
     orthologs: list[Ortholog] = field(default_factory=list)
 
     prev_modified: list[str] = field(default_factory=list)
@@ -67,6 +77,65 @@ class Gene:
                     synonyms_list.append(synonym)
 
         return QueryInput(protein_symbol=self.symbol, synonyms=list(set(synonyms_list)))
+
+    def get_protein_sequences(self):
+        self.protein_sequence = get_protein_sequence(self.symbol, self.tax_id)
+        for ortholog in self.orthologs:
+            ortholog.protein_sequence = get_protein_sequence(
+                ortholog.symbol, ortholog.tax_id
+            )
+
+    def get_protein_alignment(self):
+        if self.protein_sequence:
+            seqs_dict = {self.common_name.replace(" ", "_"): self.protein_sequence}
+            for ortholog in self.orthologs:
+                if ortholog.protein_sequence:
+                    seqs_dict[ortholog.common_name.replace(" ", "_")] = (
+                        ortholog.protein_sequence
+                    )
+
+            if len(seqs_dict) > 1:
+                aligned_seqs = align_proteins(seqs_dict)
+                self.protein_alignment = aligned_seqs
+            else:
+                self.protein_alignment = seqs_dict
+
+
+def align_proteins(proteins_dict: dict) -> dict[str, str]:
+    fasta_str = "\n".join(f">{k}\n{v}" for k, v in proteins_dict.items())
+    aligned_dict = {}
+    result = subprocess.run(
+        ["clustalo", "-i", "-", "--outfmt=fasta", "--auto", "--force"],
+        input=fasta_str.encode(),
+        capture_output=True,
+        check=True,
+    )
+
+    alignment = AlignIO.read(StringIO(result.stdout.decode()), "fasta")
+    for record in alignment:
+        aligned_dict[record.id] = str(record.seq)
+
+    return aligned_dict
+
+
+def get_protein_sequence(gene_symbol: str, tax_id: str) -> str:
+    logger.info(f"Extracting sequence for gene {gene_symbol} in {tax_id}")
+    seq = ""
+    url = f"https://rest.uniprot.org/uniprotkb/search?query=gene:{gene_symbol}+AND+organism_id:{tax_id}&fields=accession,sequence&format=json"
+
+    response = requests.get(url)
+    data = response.json()
+    result = data.get("results", [])
+
+    if result:
+        seq = result[0]["sequence"]["value"]
+        logger.info(f"Extracted sequence with length {len(seq)}")
+    else:
+        logger.warning(
+            f"Could not exract protein sequence for {gene_symbol} in {tax_id}"
+        )
+
+    return seq
 
 
 def update_index_if_not_present(key: str, index: dict, gene: Gene | str):
@@ -190,6 +259,10 @@ def parse_target_gene_with_orthologs(
     target_gene.orthologs = get_orthologs_for_gene_ncbi(
         gene_name, save_output=save_output, force_rerun=force_rerun
     ).orthologs
+
+    target_gene.get_protein_sequences()
+    target_gene.get_protein_alignment()
+
     target_gene.prev_modified = prev_modified
 
     if save_output:
