@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-mport asyncio
+import asyncio
 import json
 import logging
+import math
 import os
 import re
-import math
-from datetime import datetime
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
@@ -28,7 +28,8 @@ HTTP_HEADERS = {
 
 BROWSER_UA = os.environ.get(
     "PROTEINKB_BROWSER_UA",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+    + " (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
 )
 
 RPS_EPMC = 8
@@ -56,13 +57,13 @@ async def fetch_json(session, url, **kw):
                 if r.status == 404:
                     return None
                 if r.status in (429, 500, 502, 503, 504):
-                    await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+                    await asyncio.sleep(min(8, 0.5 * (2**attempt)))
                     continue
                 if r.status == 204:
                     return None
                 text = await r.text()
                 if not text.strip():
-                    await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+                    await asyncio.sleep(min(8, 0.5 * (2**attempt)))
                     continue
                 try:
                     return json.loads(text)
@@ -76,11 +77,11 @@ async def fetch_json(session, url, **kw):
                 return None
             if attempt == 4:
                 raise
-            await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+            await asyncio.sleep(min(8, 0.5 * (2**attempt)))
         except Exception:
             if attempt == 4:
                 raise
-            await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+            await asyncio.sleep(min(8, 0.5 * (2**attempt)))
     return None
 
 
@@ -91,7 +92,7 @@ async def fetch_text(session, url, **kw):
                 if r.status == 404:
                     return None
                 if r.status in (429, 500, 502, 503, 504):
-                    await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+                    await asyncio.sleep(min(8, 0.5 * (2**attempt)))
                     continue
                 r.raise_for_status()
                 return await r.text()
@@ -100,17 +101,18 @@ async def fetch_text(session, url, **kw):
                 return None
             if attempt == 4:
                 raise
-            await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+            await asyncio.sleep(min(8, 0.5 * (2**attempt)))
         except Exception:
             if attempt == 4:
                 raise
-            await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+            await asyncio.sleep(min(8, 0.5 * (2**attempt)))
     return None
+
 
 def html_to_xml(html_bytes: bytes) -> bytes:
     try:
-        from lxml import html as lxml_html
         from lxml import etree
+        from lxml import html as lxml_html
 
         doc = lxml_html.fromstring(html_bytes)
         xml_bytes = etree.tostring(doc, method="xml", encoding="utf-8")
@@ -128,6 +130,7 @@ def html_to_xml(html_bytes: bytes) -> bytes:
         )
         return wrapped.encode("utf-8")
 
+
 async def fetch_binary(session, url, **kw) -> Tuple[Optional[bytes], Optional[str]]:
     for attempt in range(5):
         try:
@@ -138,7 +141,7 @@ async def fetch_binary(session, url, **kw) -> Tuple[Optional[bytes], Optional[st
                 if r.status in (401, 403, 404):
                     return None, None
                 if r.status in (429, 500, 502, 503, 504):
-                    await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+                    await asyncio.sleep(min(8, 0.5 * (2**attempt)))
                     continue
                 r.raise_for_status()
                 ct = r.headers.get("Content-Type", "")
@@ -147,12 +150,13 @@ async def fetch_binary(session, url, **kw) -> Tuple[Optional[bytes], Optional[st
         except aiohttp.ClientResponseError:
             if attempt == 4:
                 return None, None
-            await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+            await asyncio.sleep(min(8, 0.5 * (2**attempt)))
         except Exception:
             if attempt == 4:
                 return None, None
-            await asyncio.sleep(min(8, 0.5 * (2 ** attempt)))
+            await asyncio.sleep(min(8, 0.5 * (2**attempt)))
     return None, None
+
 
 async def epmc_core(session, rl: RL, ext_id: str) -> Dict[str, Any]:
     await rl.tick()
@@ -193,6 +197,7 @@ async def epmc_annotations_any(session, rl: RL, ids: List[str]) -> Dict[str, boo
             out[src] = True
     return out
 
+
 async def oax_get_work(session, rl: RL, doi: str) -> Dict[str, Any]:
     if not doi:
         return {}
@@ -210,6 +215,7 @@ async def oax_get_venue(session, rl: RL, venue_id: str) -> Dict[str, Any]:
     url = OPENALEX_VENUE.format(venue_id=vid)
     params = {"mailto": "contact@example.org"}
     return await fetch_json(session, url, headers=HTTP_HEADERS, params=params)
+
 
 async def openalex_collect_metrics(
     session, rl: RL, dois: List[str]
@@ -238,8 +244,11 @@ async def openalex_collect_metrics(
                 oa_landing_url = bol.get("url_for_landing_page") or bol.get(
                     "landing_page_url"
                 )
-                oa_url = oa_pdf_url or bol.get("url") or oa_landing_url or oa_block.get(
-                    "oa_url"
+                oa_url = (
+                    oa_pdf_url
+                    or bol.get("url")
+                    or oa_landing_url
+                    or oa_block.get("oa_url")
                 )
         elif "is_oa" in w:
             oa = bool(w.get("is_oa"))
@@ -275,6 +284,7 @@ async def openalex_collect_metrics(
         }
 
     return work_map, venue_map
+
 
 def novelty_points(year: Optional[int]) -> (int, Optional[str]):
     if not year:
@@ -377,9 +387,7 @@ def compile_synonyms(syns: List[str]):
     return re.compile(r"\b(" + "|".join(parts) + r")\b", re.IGNORECASE)
 
 
-def quick_score(
-    a: Article, syn_re, *, cited_by_count=0, venue_2yr=None, venue_h=None
-):
+def quick_score(a: Article, syn_re, *, cited_by_count=0, venue_2yr=None, venue_h=None):
     base = 0
     reasons: List[str] = []
 
@@ -412,7 +420,9 @@ async def triage(
     use_semantic: bool = False,
     sem_model: str = "pritamdeka/S-Biomed-Roberta-snli-multinli-stsb",
 ):
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
+    )
 
     epmc_rl = RL(RPS_EPMC)
     upw_rl = RL(RPS_UNPAYWALL)
@@ -519,7 +529,9 @@ async def triage(
                         hdrs = {"Accept": "application/pdf, */*"}
                         if oa_land:
                             hdrs["Referer"] = oa_land
-                        data, ctype = await fetch_binary(session, candidate, headers=hdrs)
+                        data, ctype = await fetch_binary(
+                            session, candidate, headers=hdrs
+                        )
                         if not data and oa_fallback and candidate != oa_fallback:
                             data, ctype = await fetch_binary(
                                 session, oa_fallback, headers=hdrs
@@ -532,7 +544,8 @@ async def triage(
                                 outp = os.path.join(
                                     out_prefix,
                                     "fulltext_oa",
-                                    f"{a.pmid or (a.doi or 'noid').replace('/', '_')}.pdf",
+                                    f"{a.pmid or (a.doi or 'noid').replace('/', '_')}."
+                                    + "pdf",
                                 )
                                 os.makedirs(os.path.dirname(outp), exist_ok=True)
                                 with open(outp, "wb") as f:
@@ -552,7 +565,8 @@ async def triage(
                                 outp = os.path.join(
                                     out_prefix,
                                     "fulltext_xml",
-                                    f"{a.pmid or (a.doi or 'noid').replace('/', '_')}.xml",
+                                    f"{a.pmid or (a.doi or 'noid').replace('/', '_')}."
+                                    + "xml",
                                 )
                                 os.makedirs(os.path.dirname(outp), exist_ok=True)
                                 with open(outp, "wb") as f:
@@ -571,7 +585,9 @@ async def triage(
                 if (not fulltext_path) and a.doi and upw_email:
                     await upw_rl.tick()
                     j = await fetch_json(
-                        session, UNPAYWALL.format(doi=a.doi), params={"email": upw_email}
+                        session,
+                        UNPAYWALL.format(doi=a.doi),
+                        params={"email": upw_email},
                     )
                     if j and j.get("is_oa"):
                         oa = True
@@ -595,7 +611,10 @@ async def triage(
                                     outp = os.path.join(
                                         out_prefix,
                                         "fulltext_oa",
-                                        f"{a.pmid or (a.doi or 'noid').replace('/', '_')}.pdf",
+                                        f"{
+                                            a.pmid
+                                            or (a.doi or 'noid').replace('/', '_')
+                                        }.pdf",
                                     )
                                     os.makedirs(os.path.dirname(outp), exist_ok=True)
                                     with open(outp, "wb") as f:
@@ -610,10 +629,13 @@ async def triage(
                                     )
                                 else:
                                     xml_bytes = html_to_xml(data)
+                                    placeholder = a.pmid or (a.doi or "noid").replace(
+                                        "/", "_"
+                                    )
                                     outp = os.path.join(
                                         out_prefix,
                                         "fulltext_xml",
-                                        f"{a.pmid or (a.doi or 'noid').replace('/', '_')}.xml",
+                                        f"{placeholder}.xml",  # type: ignore
                                     )
                                     os.makedirs(os.path.dirname(outp), exist_ok=True)
                                     with open(outp, "wb") as f:
@@ -661,7 +683,9 @@ async def triage(
             for r in results:
                 f.write(json.dumps(asdict(r), ensure_ascii=False) + "\n")
 
-        with open(os.path.join(out_prefix, "keep.pmids.txt"), "w", encoding="utf-8") as f:
+        with open(
+            os.path.join(out_prefix, "keep.pmids.txt"), "w", encoding="utf-8"
+        ) as f:
             for r in results:
                 if (not r.is_review) and r.score > SCORE_MIN_FOR_FULLTEXT:
                     f.write(r.pmid + "\n")
@@ -677,7 +701,9 @@ def main():
     p.add_argument("--syn", action="append")
     p.add_argument("--unpaywall-email")
     p.add_argument("--use-semantic", action="store_true")
-    p.add_argument("--sem-model", default="pritamdeka/S-Biomed-Roberta-snli-multinli-stsb")
+    p.add_argument(
+        "--sem-model", default="pritamdeka/S-Biomed-Roberta-snli-multinli-stsb"
+    )
     args = p.parse_args()
 
     syns = list({args.protein} | set(args.syn or []))
@@ -691,6 +717,7 @@ def main():
             args.sem_model,
         )
     )
+
 
 if __name__ == "__main__":
     main()

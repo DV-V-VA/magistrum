@@ -13,13 +13,13 @@ gene_list.remove("NFE2L2")
 # gene_list.remove("SOX2")
 # gene_list.remove("OCT4")
 
-final_gene_list = ["NFE2L2", "APOE", "SOX2", "OCT4"]
+final_gene_list = ["SOX2", "NFE2L2", "APOE", "OCT4"]
 final_gene_list.extend(gene_list)
 
 setup_logging(PATH_TO_LOGS)
 logger = logging.getLogger(__name__)
 
-for gene in ["alpha-2-macroglobulin"]:
+for gene in final_gene_list:  # ["alpha-2-macroglobulin"]:
     try:
         run_pipeline(gene, force_rerun=True)
     except Exception as e:
