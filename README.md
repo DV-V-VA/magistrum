@@ -22,7 +22,6 @@ This is an intergrated service for possible (who knows) assistance in protein ag
         - data is stored for future access from web app
 
 2) Web app 
-    - available at https://gendvva.ru/
     - displays information obtained by pipeline
     - can trigger pipeline to start if is queried by the gene name that is currently not obtained by the pipeline
 
